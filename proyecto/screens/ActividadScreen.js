@@ -38,6 +38,7 @@ export default function ActividadScreen(){
             return (
                 <View style={styles.container}>
                     <View style={styles.botonesContainer}>
+                        <Text style={styles.headerTitle}>Ahorra+ App</Text>
 
                         <View style={styles.boton}>
                             <Button color='black' title='Recibidos' onPress={()=>setMostrar('recibidos')}></Button>
@@ -51,7 +52,7 @@ export default function ActividadScreen(){
 
                     <View style={styles.listaContainer}>
 
-                        <Text style={styles.titulo}>{mostrar === 'recibidos' ? 'Recibidos' : 'Realizados'}</Text>
+                        <Text style={styles.titulo}>{mostrar === 'recibidos' ? 'Recibidos Octubre / Noviembre ' : 'Realizados Octubre / Noviembre'}</Text>
                         <FlatList
                         data={datos}
                         keyExtractor={(item) => item.id}
@@ -85,6 +86,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight:'bold',
         margin: 10,
+    },
+    headerTitle: { 
+        flex: 1, 
+        textAlign: "center", 
+        fontSize: 18, 
+        fontWeight: "700" 
     },
     item:{
         padding: 10,
