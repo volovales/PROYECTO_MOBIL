@@ -23,10 +23,12 @@ export default function InicioSesion({ goRegistro }) {
 
   return (
     <SafeAreaView style={styles.root}>
+      <Text style={styles.headerTitle}>Ahorra+ App</Text>
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
+        
         <Text style={styles.title}>Inicia Sesion</Text>
         <Text style={styles.subtitle}>para continuar</Text>
 
@@ -105,6 +107,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+   headerTitle: { 
+        flex: 1, 
+        textAlign: "center", 
+        fontSize: 18, 
+        fontWeight: "700" 
+    },
   subtitle: {
     fontSize: 18,
     fontWeight: "600",
