@@ -1,10 +1,12 @@
+
 import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Button } from 'react-native';
 
 export default function PresupuestosScreen({ setScreen }) {
   return (
+    
     <ScrollView style={styles.container}>
-     
+      <Text style={styles.headerTitle}>Ahorra+ App</Text>
       <Text style={styles.title}>Presupuestos</Text>
       <Text style={styles.title2}>Octubre/Noviembre</Text>
 
@@ -61,4 +63,5 @@ const styles = StyleSheet.create({
   price: { marginLeft: 'auto', fontSize: 16, fontWeight: 'bold' },
   total: { textAlign: 'right', marginTop: 5, fontWeight: '600' },
   title2: { fontSize: 22, fontWeight: '600', marginVertical: 15 },
+  headerTitle: { flex: 1,  textAlign: "center", fontSize: 18, fontWeight: "700" },
 });
