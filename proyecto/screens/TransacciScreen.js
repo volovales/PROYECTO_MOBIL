@@ -68,7 +68,7 @@ export default function TransaccionesScreen() {
 
     return (
       <View style={styles.container}>
-
+        <Text style={styles.headerTitle}>Ahorra+ App</Text>
         <View style={styles.contenido}>
 
             <Text style={styles.titulo}>Transacciones</Text>
@@ -156,4 +156,10 @@ const styles = StyleSheet.create({
     bottom: 20,
     alignSelf: 'center',
   },
+    headerTitle: { 
+        flex: 1, 
+        textAlign: "center", 
+        fontSize: 18, 
+        fontWeight: "700" 
+    },
 })
