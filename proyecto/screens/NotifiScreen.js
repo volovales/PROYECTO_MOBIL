@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 
 export default function NotifiScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
-
+       <Text style={styles.headerTitle}>Ahorra+ App</Text>
       <Text style={styles.title}>Notificaciones</Text>
 
       <View style={styles.centerContainer}>
@@ -71,4 +72,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 15,
   },
+  headerTitle: { 
+        flex: 1, 
+        textAlign: "center", 
+        fontSize: 18, 
+        fontWeight: "700" 
+    },
 });
