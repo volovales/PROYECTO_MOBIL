@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 export default function NotifiScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
-      <Button title="← Volver" onPress={() => navigation.navigate('Menu')} />
 
       <Text style={styles.title}>Notificaciones</Text>
 
