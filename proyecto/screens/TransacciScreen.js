@@ -11,15 +11,57 @@ export default function TransaccionesScreen() {
 
 
     const carga =()=>{
-      setPresionar(true);
-      setTimeout(()=>{
-        setPresionar(false);
+      if(nombre.trim()=== '' && numero.trim() === '' && banco.trim() ==='' && cantidad.trim() === ''){
         if(Platform.OS === 'web'){
-            window.alert('Transaccion realizada');
-        } else{
-            Alert.alert('Transaccion realizada');
+          window.alert('Error, por favor complete todos los campos');
         }
-      }, 3000);
+        else{
+          Alert.alert('Error, por favor complete todo los campos')
+        }
+      }
+      else if(nombre.trim() === ''){
+        if(Platform.OS === 'web'){
+          window.alert('Error, ingrese el nombre del destinatario');
+        }
+        else{
+          Alert.alert('Error, ingrese el nombre del destinatario');
+        }
+      }
+      else if(numero.trim() === ''){
+        if(Platform.OS === 'web'){
+          window.alert('Error, ingrese el número de tarjeta o CLABE del destinatario');
+        }
+        else{
+          Alert.alert('Error, ingrese el número de tarjeta o CLABE del destinatario');
+        }
+      }
+      else if(banco.trim() === ''){
+        if(Platform.OS === 'web'){
+          window.alert('Error, ingrese el banco del destinatario');
+        }
+        else{
+          Alert.alert('Error, ingrese el banco del destinatario');
+        }
+      }
+      else if(monto.trim() === ''){
+        if(Platform.OS === 'web'){
+          window.alert('Error, ingrese el monto a pagar de la persona');
+        }
+        else{
+          Alert.alert('Error, ingrese el monto a pagar de la persona');
+        }
+      }
+      else{
+        setPresionar(true);
+        setTimeout(()=>{
+          setPresionar(false);
+          if(Platform.OS === 'web'){
+              window.alert('Transaccion realizada');
+          } else{
+            Alert.alert('Transaccion realizada');
+          }
+        }, 3000);
+      } 
     };
 
 
