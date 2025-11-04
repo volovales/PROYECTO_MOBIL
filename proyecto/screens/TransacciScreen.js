@@ -68,11 +68,11 @@ export default function TransaccionesScreen() {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.headerTitle}>Ahorra+ App</Text>
+        
         <View style={styles.contenido}>
 
             <Text style={styles.titulo}>Transacciones</Text>
-
+            <Text style={styles.headerTitle}>Ahorra+ App</Text>
             <Text style={styles.subtitulo}>Clave/Número tarjeta</Text>
             <TextInput 
             value = {numero} 
@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
   titulo:{
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 10,
+    marginTop: 50,
   },
   subtitulo:{
     fontSize: 18,
