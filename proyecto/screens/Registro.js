@@ -27,7 +27,9 @@ export default function Registro({ goLogin }) {
 
   return (
     <SafeAreaView style={styles.root}>
+      <Text style={styles.headerTitle}>Ahorra+ App</Text>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        
         <Text style={styles.title}>Registrarse</Text>
 
         <Text style={styles.label}>Nombre Completo</Text>
@@ -114,6 +116,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
+   headerTitle: { 
+        flex: 1, 
+        textAlign: "center", 
+        fontSize: 18, 
+        fontWeight: "700" 
+    },
   input: {
     height: 44,
     borderRadius: 10,
