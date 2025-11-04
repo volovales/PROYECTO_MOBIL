@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Button } from 'react-native';
 
-export default function PresupuestoScreen({ setScreen }) {
+export default function PresupuestosScreen({ setScreen }) {
   return (
     <ScrollView style={styles.container}>
-      <Button title="← Volver" onPress={() => setScreen('menu')} />
-
+     
       <Text style={styles.title}>Presupuestos</Text>
+      <Text style={styles.title2}>Octubre/Noviembre</Text>
 
       <View style={styles.item}>
         <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/1046/1046784.png' }} style={styles.icon} />
@@ -60,4 +60,5 @@ const styles = StyleSheet.create({
   details: { color: 'gray', fontSize: 14 },
   price: { marginLeft: 'auto', fontSize: 16, fontWeight: 'bold' },
   total: { textAlign: 'right', marginTop: 5, fontWeight: '600' },
+  title2: { fontSize: 22, fontWeight: '600', marginVertical: 15 },
 });
