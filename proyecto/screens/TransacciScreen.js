@@ -3,112 +3,96 @@ import React, {useState} from 'react'
 
 export default function TransaccionesScreen() {
 
-    const [numero, setNumero] = useState('');
-    const [nombre, setNombre] = useState('');
-    const [banco, setBanco] = useState(''); 
-    const [cantidad, setCantidad] = useState('');
-    const [presionar, setPresionar] = useState(false);
+
+  const [nombreApartado, setNombreApartado] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [cantidad, setCantidad] = useState('');
+  const [presionar, setPresionar] = useState(false);
 
 
-    const carga =()=>{
-      if(nombre.trim()=== '' && numero.trim() === '' && banco.trim() ==='' && cantidad.trim() === ''){
-        if(Platform.OS === 'web'){
-          window.alert('Error, por favor complete todos los campos');
-        }
-        else{
-          Alert.alert('Error, por favor complete todo los campos')
-        }
-      }
-      else if(nombre.trim() === ''){
-        if(Platform.OS === 'web'){
-          window.alert('Error, ingrese el nombre del destinatario');
-        }
-        else{
-          Alert.alert('Error, ingrese el nombre del destinatario');
-        }
-      }
-      else if(numero.trim() === ''){
-        if(Platform.OS === 'web'){
-          window.alert('Error, ingrese el número de tarjeta o CLABE del destinatario');
-        }
-        else{
-          Alert.alert('Error, ingrese el número de tarjeta o CLABE del destinatario');
-        }
-      }
-      else if(banco.trim() === ''){
-        if(Platform.OS === 'web'){
-          window.alert('Error, ingrese el banco del destinatario');
-        }
-        else{
-          Alert.alert('Error, ingrese el banco del destinatario');
-        }
-      }
-      else if(monto.trim() === ''){
-        if(Platform.OS === 'web'){
-          window.alert('Error, ingrese el monto a pagar de la persona');
-        }
-        else{
-          Alert.alert('Error, ingrese el monto a pagar de la persona');
-        }
+  const carga =()=>{
+    if(descripcion.trim()=== '' && nombreApartado.trim() === '' && cantidad.trim() === ''){
+      if(Platform.OS === 'web'){
+        window.alert('Error, por favor complete todos los campos');
       }
       else{
-        setPresionar(true);
-        setTimeout(()=>{
-          setPresionar(false);
-          if(Platform.OS === 'web'){
-              window.alert('Transaccion realizada');
-          } else{
-            Alert.alert('Transaccion realizada');
-          }
-        }, 3000);
-      } 
-    };
+        Alert.alert('Error, por favor complete todo los campos')
+      }
+    }
+    else if(descripcion.trim() === ''){
+      if(Platform.OS === 'web'){
+        window.alert('Error, ingrese la descripción del apartado');
+      }
+      else{
+        Alert.alert('Error, ingrese la descripción del apartado');
+      }
+    }
+    else if(nombreApartado.trim() === ''){
+      if(Platform.OS === 'web'){
+        window.alert('Error, ingrese el nombre del apartado');
+      }
+      else{
+        Alert.alert('Error, ingrese el nombre del apartado');
+      }
+    }
+    else if(cantidad.trim() === ''){
+      if(Platform.OS === 'web'){
+        window.alert('Error, ingrese el monto del movimiento');
+      }
+      else{
+        Alert.alert('Error, ingrese el monto del movimiento');
+      }
+    }
+    else{
+      setPresionar(true);
+      setTimeout(()=>{
+      setPresionar(false);
+      if(Platform.OS === 'web'){
+        window.alert('Transaccion realizada');
+      }
+      else{
+        Alert.alert('Transaccion realizada');
+      }
+      }, 3000);
+    } 
+  };
 
 
 
-    return (
-      <View style={styles.container}>
-        
-        <View style={styles.contenido}>
+  return (
+    <View style={styles.container}>
 
-            <Text style={styles.titulo}>Transacciones</Text>
-            <Text style={styles.headerTitle}>Ahorra+ App</Text>
-            <Text style={styles.subtitulo}>Clave/Número tarjeta</Text>
-            <TextInput 
-            value = {numero} 
-            onChangeText={setNumero}
-            maxLength={50}
-            style={styles.recuadro}
-            keyboardType='numeric'>
-            </TextInput>
+      <View style={styles.contenido}>
 
-            <Text style={styles.subtitulo}>Nombre del destinatario</Text>
-            <TextInput 
-            value = {nombre} 
-            onChangeText={setNombre}
-            maxLength={50}
-            style={styles.recuadro}>
-            </TextInput>
+        <Text style={styles.titulo}>Nueva Transacción</Text>
 
-            <Text style={styles.subtitulo}>Nombre del banco</Text>
-            <TextInput
-            value={banco}
-            onChangeText={setBanco}
-            maxLength={70}
-            style={styles.recuadro}>
-            </TextInput>
+        <Text style={styles.subtitulo}>Nombre del Apartado: </Text>
+        <TextInput 
+        value = {nombreApartado} 
+        onChangeText={setNombreApartado}
+        maxLength={50}
+        style={styles.recuadro}>
+        </TextInput>
 
-            <Text style={styles.subtitulo}>Cantidad de la transacción</Text>
-            <TextInput
-            value={cantidad}
-            onChangeText={setCantidad}
-            maxLength={20}
-            style={styles.recuadro}
-            keyboardType='numeric'>
-            </TextInput>
+        <Text style={styles.subtitulo}>Descripción:</Text>
+        <TextInput 
+        value = {descripcion} 
+        onChangeText={setDescripcion}
+        maxLength={50}
+        style={styles.recuadro}>
+        </TextInput>
 
-            <Text style={styles.totalOperacion}>Total: ${parseFloat(cantidad|| 0).toFixed(2)}</Text>
-        </View>
+        <Text style={styles.subtitulo}>Cantidad del Presupuesto</Text>
+        <TextInput
+        value={cantidad}
+        onChangeText={setCantidad}
+        maxLength={20}
+        style={styles.recuadro}
+        keyboardType='numeric'>
+        </TextInput>
+
+        <Text style={styles.totalOperacion}>Total: ${parseFloat(cantidad|| 0).toFixed(2)}</Text>
+      </View>
 
         <View style={styles.botonContainer}>
           {presionar ? (<ActivityIndicator size='large' color='blue'></ActivityIndicator>) : (<Button color='black' title='Completar Carga' onPress={carga}></Button>)}
@@ -127,8 +111,7 @@ const styles = StyleSheet.create({
   titulo:{
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 50,
+    marginBottom: 15,
   },
   subtitulo:{
     fontSize: 18,
@@ -157,10 +140,4 @@ const styles = StyleSheet.create({
     bottom: 20,
     alignSelf: 'center',
   },
-    headerTitle: { 
-        flex: 1, 
-        textAlign: "center", 
-        fontSize: 18, 
-        fontWeight: "700" 
-    },
 })
