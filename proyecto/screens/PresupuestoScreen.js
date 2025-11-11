@@ -179,7 +179,12 @@ export default function PresupuestosScreen({ setScreen }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
+  container: {
+  flex: 1,
+  backgroundColor: '#fff',
+  padding: 20,
+  paddingTop: 60, // 👈 Esto baja todo el contenido sin afectar el navegador
+},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -189,13 +194,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backRectButton: {
-    backgroundColor: '#333',
+    backgroundColor: '#ffffffff',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,
     marginRight: 10,
   },
-  backArrow: { fontSize: 20, color: '#fff', fontWeight: 'bold' },
+  backArrow: { fontSize: 20, color: '#000000ff', fontWeight: 'bold' },
   headerTitle: { fontSize: 20, fontWeight: '600', color: '#000' },
   subtitle: { fontSize: 18, color: '#777', marginBottom: 20 },
   item: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
