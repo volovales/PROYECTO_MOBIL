@@ -19,7 +19,7 @@ export default function HomeScreen({ navigation }) {
       </View>
       <Button color = 'grey' title="Ver transacciones" onPress={() => navigation.navigate('Transacciones')} />
       <Button color = 'grey' title="Presupuesto" onPress={() => navigation.navigate('Presupuestos')} />
-      <Button color = 'grey' title="Ver gráficas" onPress={() => navigation.navigate('Graficas')} />
+      <Button color='grey' title="Ver gráficas" onPress={() => navigation.navigate('Graficas')} />
       <Button color = 'grey' title="Ver perfil" onPress={() => navigation.navigate('Perfil')} />
     </View>
   );

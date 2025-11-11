@@ -2,7 +2,6 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Importa tus pantallas
 import Menu from './screens/Menu';
 import InicioSesion from './screens/InicioSesion';
 import Registro from './screens/Registro';
@@ -10,6 +9,7 @@ import HomeScreen from './screens/HomeScreen';
 import TransaccionesScreen from './screens/TransacciScreen';
 import PresupuestoScreen from './screens/PresupuestoScreen';
 import NotifiScreen from './screens/NotifiScreen';
+import GraficasScreen from './screens/GraficasScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +24,7 @@ export default function App() {
         <Stack.Screen name="Transacciones" component={TransaccionesScreen} />
         <Stack.Screen name="Presupuesto" component={PresupuestoScreen} />
         <Stack.Screen name="Notificaciones" component={NotifiScreen} />
+        <Stack.Screen name="Graficas" component={GraficasScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
