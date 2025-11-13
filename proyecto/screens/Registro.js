@@ -90,12 +90,6 @@ export default function Registro({ goLogin }) {
           </View>
         </TouchableOpacity>
         
-        <Text style={styles.smallText}>
-          ¿Ya tienes una cuenta?{" "}
-          <Text style={styles.link} onPress={goLogin}>
-            Entra aquí
-          </Text>
-        </Text>
 
         <TouchableOpacity style={styles.primaryBtn} onPress={onRegister}>
           <Text style={styles.primaryBtnText}>Registrarse</Text>

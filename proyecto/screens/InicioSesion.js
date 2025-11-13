@@ -1,26 +1,57 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-export default function InicioSesion({ goRegistro }) {
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import Home from "./HomeScreen";
+import Recuperar from "./RecuperarContraseña";
+import Registro from "./Registro";
+export default function InicioSesion() {
   const [email, setEmail] = useState("");
-
+  const [password, setPassword] = useState("");
+  const [mostrarHome, setMostrarHome] = useState(false); 
+  const [mostrarRegistro, setMostrarRegistro] = useState(false); 
+  const [mostrarOlvContra, setMostrarOlvContra] = useState(false); 
+  
   const onContinue = () => {
-    if (!email.trim()) {
-      Alert.alert("Campo vacío", "Ingresa tu correo electrónico.");
+    if (email.trim() === "" || password.trim() === "") {
+      Alert.alert("Campo vacío", "Ingresa tu correo electrónico y contraseña.");
       return;
     }
-    Alert.alert("Continuar", `Intento de inicio con: ${email}`);
-  };
 
+    Alert.alert("Inicio de sesión", "Gracias por iniciar sesión.", [
+      {
+        text: "OK",
+        onPress: () => setMostrarHome(true),
+      },
+    ]);
+  };
+  if (mostrarHome) {
+    return <Home />;
+  }
+
+  const goRecuperar = () => {
+     Alert.alert( "Recuperar Contraseña", "Navegando a Recuperar Contraseña.", [
+      {
+        text: "OK",
+        onPress: () => setMostrarOlvContra(true),
+      },
+    ]);
+  };
+  if (mostrarOlvContra) {
+    return <Recuperar />;
+  }
+
+  const goRegistro = () => {
+     Alert.alert( "Registro", "Navegando a Registro.", [
+      {
+        text: "OK",
+        onPress: () => setMostrarRegistro(true),
+      },
+    ]);
+  };
+  if (mostrarRegistro) {
+    return <Registro />;
+  }
+
+ 
   return (
     <SafeAreaView style={styles.root}>
       <Text style={styles.headerTitle}>Ahorra+ App</Text>
@@ -28,13 +59,13 @@ export default function InicioSesion({ goRegistro }) {
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        
-        <Text style={styles.title}>Inicia Sesion</Text>
+        <Text style={styles.title}>Inicia Sesión</Text>
         <Text style={styles.subtitle}>para continuar</Text>
 
         <Text style={styles.sectionTitle}>Inicia en tu cuenta</Text>
         <Text style={styles.helperText}>
-          Ingresa tu correo electrónico{"\n"}</Text>
+          Ingresa tu correo electrónico{"\n"}
+        </Text>
 
         <TextInput
           style={[styles.input, { marginTop: 12 }]}
@@ -46,42 +77,53 @@ export default function InicioSesion({ goRegistro }) {
           onChangeText={setEmail}
         />
 
+        <Text style={styles.helperText}>Ingresa tu contraseña{"\n"}</Text>
+        <TextInput
+          style={[styles.input, { marginTop: 12 }]}
+          placeholder="************"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
         <TouchableOpacity style={styles.primaryBtn} onPress={onContinue}>
           <Text style={styles.primaryBtnText}>Continuar</Text>
         </TouchableOpacity>
 
-        {/* Separador */}
+
+        <TouchableOpacity style={styles.primaryBtn} onPress={goRecuperar}>
+          <Text style={styles.primaryBtnText}>¿Olvidaste tu contraseña?</Text>
+        </TouchableOpacity>
+
         <View style={styles.separatorContainer}>
           <View style={styles.separatorLine} />
           <Text style={styles.separatorDot}>o</Text>
           <View style={styles.separatorLine} />
         </View>
 
-        {/* BOTÓN GOOGLE */}
         <TouchableOpacity
           style={styles.socialBtn}
-          onPress={() => Alert.alert("Google", "Continuar con Google (demo)")}
+          onPress={() => Alert.alert("Google", "Continuar con Google")}
         >
           <View style={styles.socialContent}>
             <Text style={styles.socialText}>Continuar con Google</Text>
           </View>
         </TouchableOpacity>
 
-        {/* BOTÓN APPLE */}
         <TouchableOpacity
           style={styles.socialBtn}
-          onPress={() => Alert.alert("Apple", "Continuar con Apple (demo)")}
+          onPress={() => Alert.alert("Apple", "Continuar con Apple")}
         >
           <View style={styles.socialContent}>
             <Text style={styles.socialText}>Continuar con Apple</Text>
           </View>
         </TouchableOpacity>
 
-        {/* Texto inferior */}
         <Text style={styles.terms}>
           Al hacer clic en continuar, aceptas nuestros{"\n"}
-          <Text style={styles.link}>Términos de servicio</Text> y{" "}
-          <Text style={styles.link}>Política de privacidad</Text>.
+          <Text>Términos de servicio</Text> y{" "}
+          <Text>Política de privacidad</Text>.
         </Text>
 
         {goRegistro ? (
@@ -100,6 +142,12 @@ export default function InicioSesion({ goRegistro }) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#fff" },
   scroll: { flexGrow: 1, padding: 24 },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "700",
+  },
   title: {
     fontSize: 28,
     fontWeight: "700",
@@ -107,12 +155,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
-   headerTitle: { 
-        flex: 1, 
-        textAlign: "center", 
-        fontSize: 18, 
-        fontWeight: "700" 
-    },
   subtitle: {
     fontSize: 18,
     fontWeight: "600",
@@ -163,15 +205,19 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     fontWeight: "500",
   },
-
+  socialBtn: {
+    height: 46,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
   socialContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-  },
-  socialIcon: {
-    fontSize: 16,
-    marginRight: 8,
   },
   socialText: {
     fontSize: 14,
@@ -185,6 +231,5 @@ const styles = StyleSheet.create({
     marginTop: 14,
     lineHeight: 18,
   },
-  link: { textDecorationLine: "underline" },
   switchAuth: { textAlign: "center", marginTop: 16, color: "#374151" },
 });

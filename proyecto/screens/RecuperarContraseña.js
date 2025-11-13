@@ -1,4 +1,3 @@
-// RecuperarContraseña.js
 import React, { useState } from "react";
 import {
   Alert,
@@ -37,7 +36,7 @@ export default function RecuperarContraseña() {
     // Aquí iría la petición real al backend
     showAlert(
       "Recuperación",
-      `Se ha enviado un enlace de recuperación a ${email} (demo)`
+      `Se ha enviado un enlace de recuperación a ${email}`
     );
   };
 
