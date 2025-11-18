@@ -13,7 +13,6 @@ export default function GraficasScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Gráficas Financieras</Text>
 
-      {/* Botones de selección */}
       <View style={styles.botones}>
         <Button
           title="Ingresos"
@@ -48,7 +47,6 @@ export default function GraficasScreen() {
         </View>
       </View>
 
-      {/* Gráfica */}
       <View style={styles.card}>
         <Image
           source={{ uri: imagenes[grafica] }}
