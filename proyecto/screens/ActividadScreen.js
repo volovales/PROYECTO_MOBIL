@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, StyleSheet, View, FlatList, Button, TextInput, TouchableOpacity, Modal } from 'react-native';
+import { Text, StyleSheet, View, FlatList, Button, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 
 export default function ActividadScreen() {
 
@@ -21,11 +21,16 @@ export default function ActividadScreen() {
   const [monto, setMonto] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [tipoRegistro, setTipoRegistro] = useState('');
+  const [editando, setEditando] = useState(null);
 
   const datos = mostrar === 'recibidos' ? recibidos : realizados;
 
   const abrirModal = (tipo) => {
     setTipoRegistro(tipo);
+    setEditando(null);
+    setNombre('');
+    setDescripcion('');
+    setMonto('');
     setModalVisible(true);
   };
 
@@ -34,11 +39,33 @@ export default function ActividadScreen() {
     setNombre('');
     setDescripcion('');
     setMonto('');
+    setEditando(null);
   };
 
   const agregarElemento = () => {
-    if (!nombre || !descripcion || !monto) return;
-    
+    if (!nombre || !descripcion || !monto) {
+      Alert.alert("Campos incompletos", "Debes llenar todos los campos antes de confirmar.");
+      return;
+    }
+
+    if (editando) {
+      const actualizado = {
+        ...editando,
+        nombre,
+        descripcion,
+        monto: parseFloat(monto),
+      };
+
+      if (mostrar === "recibidos") {
+        setRecibidos(recibidos.map(i => i.id === editando.id ? actualizado : i));
+      } else {
+        setRealizados(realizados.map(i => i.id === editando.id ? actualizado : i));
+      }
+
+      cerrarModal();
+      return;
+    }
+
     const nuevo = {
       id: Date.now().toString(),
       nombre,
@@ -54,6 +81,23 @@ export default function ActividadScreen() {
     }
 
     cerrarModal();
+  };
+
+  const eliminarElemento = (id) => {
+    if (mostrar === 'recibidos') {
+      setRecibidos(recibidos.filter(i => i.id !== id));
+    } else {
+      setRealizados(realizados.filter(i => i.id !== id));
+    }
+  };
+
+
+  const editarElemento = (item) => {
+    setEditando(item);
+    setNombre(item.nombre);
+    setDescripcion(item.descripcion);
+    setMonto(item.monto.toString());
+    setModalVisible(true);
   };
 
   return (
@@ -80,23 +124,31 @@ export default function ActividadScreen() {
               <Text style={styles.monto}>Monto: ${item.monto}</Text>
               <Text style={styles.fecha}>Fecha: {item.fecha}</Text>
             </View>
+
+            <View style={styles.acciones}>
+              <TouchableOpacity
+                style={styles.btnEditar}
+                onPress={() => editarElemento(item)}
+              >
+                <Text style={{ color: 'white' }}>Editar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.btnEliminar}
+                onPress={() => eliminarElemento(item.id)}
+              >
+                <Text style={{ color: 'white' }}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
 
       <View style={styles.botonesAccion}>
         {mostrar === 'recibidos' ? (
-          <Button 
-            color='black' 
-            title='Registrar ingreso' 
-            onPress={() => abrirModal('ingreso')} 
-          />
+          <Button color='black' title='Registrar ingreso' onPress={() => abrirModal('ingreso')} />
         ) : (
-          <Button 
-            color='black' 
-            title='Registrar gasto' 
-            onPress={() => abrirModal('gasto')} 
-          />
+          <Button color='black' title='Registrar gasto' onPress={() => abrirModal('gasto')} />
         )}
       </View>
 
@@ -104,14 +156,13 @@ export default function ActividadScreen() {
         animationType='fade'
         transparent={true}
         visible={modalVisible}
-        onRequestClose={cerrarModal}
-      >
+        onRequestClose={cerrarModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitulo}>
-              {tipoRegistro === 'ingreso' ? 'Registrar Ingreso' : 'Registrar Gasto'}
+              {editando ? "Editar Registro" : (tipoRegistro === 'ingreso' ? 'Registrar Ingreso' : 'Registrar Gasto')}
             </Text>
-            
+
             <TextInput
               placeholder="Nombre"
               style={styles.input}
@@ -131,7 +182,7 @@ export default function ActividadScreen() {
               keyboardType="numeric"
               onChangeText={setMonto}
             />
-            
+
             <View style={styles.modalBotones}>
               <View style={styles.modalBoton}>
                 <Button color='gray' title="Cancelar" onPress={cerrarModal} />
@@ -140,6 +191,7 @@ export default function ActividadScreen() {
                 <Button color='black' title="Confirmar" onPress={agregarElemento} />
               </View>
             </View>
+
           </View>
         </View>
       </Modal>
@@ -193,6 +245,20 @@ const styles = StyleSheet.create({
   },
   botonesAccion: {
     marginTop: 20,
+  },
+  acciones: {
+    flexDirection: 'column',
+    gap: 5,
+  },
+  btnEditar: {
+    backgroundColor: 'blue',
+    padding: 5,
+    borderRadius: 5,
+  },
+  btnEliminar: {
+    backgroundColor: 'red',
+    padding: 5,
+    borderRadius: 5,
   },
   input: {
     borderWidth: 1,
