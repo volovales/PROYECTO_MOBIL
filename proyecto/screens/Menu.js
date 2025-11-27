@@ -8,12 +8,13 @@ export default function Menu({ navigation }) {
       <Button title="Inicio de Sesión" onPress={() => navigation.navigate('InicioSesion')} />
       <Button title="Registro" onPress={() => navigation.navigate('Registro')} />
 
-      {/* 🔥 TODAS ESTAS OPCIONES ENTRAN POR 'Principal' */}
-      <Button title="Home" onPress={() => navigation.navigate('Principal')} />
-      <Button title="Transacciones" onPress={() => navigation.navigate('Principal')} />
-      <Button title="Presupuesto" onPress={() => navigation.navigate('Principal')} />
-      <Button title="Notificaciones" onPress={() => navigation.navigate('Principal')} />
-      <Button title="Gráficas" onPress={() => navigation.navigate('Principal')} />
+      {/*  TODAS ESTAS OPCIONES ENTRAN POR 'Principal' */}
+      <Button title="Home" onPress={() => navigation.navigate('Principal', {screen: 'Home'})} />
+      <Button title="Transacciones" onPress={() => navigation.navigate('Principal', {screen: 'Transacciones'})} />
+      <Button title="Presupuesto" onPress={() => navigation.navigate('Principal', {screen: 'Presupuesto'})} />
+      <Button title="Notificaciones" onPress={() => navigation.navigate('Principal', {screen: 'Notificaciones'})} />
+      <Button title="Gráficas" onPress={() => navigation.navigate('Principal', {screen: 'Graficas'})} />
+      <Button title="Actividad" onPress={()=> navigation.navigate('Principal', {screen: 'Actividad'})}></Button>
     </View>
   );
 }
