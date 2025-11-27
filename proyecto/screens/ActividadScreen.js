@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, StyleSheet, View, FlatList, Button, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 
-export default function ActividadScreen() {
+export default function ActividadScreen({navigation}) {
 
   const [mostrar, setMostrar] = useState('recibidos');
   const [recibidos, setRecibidos] = useState([
