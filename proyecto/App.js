@@ -13,6 +13,7 @@ import TransaccionesScreen from './screens/TransacciScreen';
 import PresupuestoScreen from './screens/PresupuestoScreen';
 import NotifiScreen from './screens/NotifiScreen';
 import GraficasScreen from './screens/GraficasScreen';
+import ActividadScreen from './screens/ActividadScreen';
 
 // Navigators
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,9 @@ function AppTabs() {
             case "Notificaciones":
               icon = "notifications";
               break;
+            case "Actividad":
+              icon = "pulse";
+              break;
             default:
               icon = "help";
           }
@@ -66,6 +70,7 @@ function AppTabs() {
       <Tab.Screen name="Presupuesto" component={PresupuestoScreen} />
       <Tab.Screen name="Graficas" component={GraficasScreen} />
       <Tab.Screen name="Notificaciones" component={NotifiScreen} />
+      <Tab.Screen name="Actividad" component={ActividadScreen}/>
 
     </Tab.Navigator>
   );
