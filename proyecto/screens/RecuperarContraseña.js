@@ -1,18 +1,10 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import InicioSesion from "./InicioSesion";
 export default function RecuperarContraseña() {
   const [email, setEmail] = useState("");
+  const [mostrarInicioSesion, setMostrarInicio] = useState(false);
+
 
   const showAlert = (title, message) => {
     // Fallback para web (o entornos donde Alert falle)
@@ -23,6 +15,18 @@ export default function RecuperarContraseña() {
       Alert.alert(title, message);
     }
   };
+
+  const goInicioSesion = () => {
+       Alert.alert( "Inicio Sesion", "Navegando al inicio de sesion.", [
+        {
+          text: "OK",
+          onPress: () => setMostrarInicio(true),
+        },
+      ]);
+    };
+    if (mostrarInicioSesion) {
+      return <InicioSesion />;
+    }
 
   const onRecover = () => {
     console.log("BOTÓN PRESIONADO con email:", email);
@@ -42,10 +46,15 @@ export default function RecuperarContraseña() {
 
   return (
     <SafeAreaView style={styles.root}>
-      {/* Encabezado sin flex:1 */}
+      <TouchableOpacity style={styles.InicioBtn} onPress={goInicioSesion}>
+          <Text style={styles.ReturnBtnText}> Regresar</Text>
+      </TouchableOpacity>
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ahorra+ App</Text>
       </View>
+
+      
 
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -95,6 +104,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 24,
   },
+  InicioBtn: {
+    textAlign: 'left',
+
+  },
   title: {
     fontSize: 28,
     fontWeight: "700",
@@ -124,5 +137,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 14,
   },
-  primaryBtnText: { color: "#fff", fontWeight: "700" },
+  primaryBtnText: { 
+    color: "#fff", 
+    fontWeight: "700" 
+  },
+  ReturnBtnText: { 
+    color: "#000", 
+    fontWeight: "700"
+  },
 });
