@@ -105,10 +105,10 @@ export default function PresupuestosScreen({ setScreen }) {
           <Text style={styles.price}>${p.cantidad.toFixed(2)}</Text>
 
           <TouchableOpacity onPress={() => abrirModalEdicion(p)}>
-            <Text style={styles.edit}>✏️</Text>
+            <Text style={styles.edit}>✏</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => eliminarPresupuesto(p.id)}>
-            <Text style={styles.delete}>🗑️</Text>
+            <Text style={styles.delete}>🗑</Text>
           </TouchableOpacity>
         </View>
       ))}

@@ -1,31 +1,76 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Button, Dimensions } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  BackHandler,
+} from "react-native";
 import { LineChart } from "react-native-chart-kit";
 
-export default function GraficasScreen() 
-{
+export default function GraficasScreen({ navigation }) {
   const [tipo, setTipo] = useState("ingresos");
 
   const datosIngresos = [3000, 3500, 4200, 5000, 5500, 6000];
   const datosGastos = [1500, 1200, 1800, 1300, 1600, 2000];
 
+  // Botón físico (Android)
+  useEffect(() => {
+    const backAction = () => {
+      navigation.goBack();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Gráficas Financieras</Text>
 
+      {/* BOTONES PERSONALIZADOS */}
       <View style={styles.botones}>
-        <Button
-          title="Ingresos"
+        <TouchableOpacity
+          style={[
+            styles.boton,
+            tipo === "ingresos" ? styles.botonActivo : styles.botonInactivo,
+          ]}
           onPress={() => setTipo("ingresos")}
-          color={tipo === "ingresos" ? "#009688" : "gray"}
-        />
-        <Button
-          title="Gastos"
+        >
+          <Text
+            style={[
+              styles.textoBoton,
+              tipo === "ingresos" ? styles.textoActivo : styles.textoInactivo,
+            ]}
+          >
+            INGRESOS
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.boton,
+            tipo === "gastos" ? styles.botonActivo : styles.botonInactivo,
+          ]}
           onPress={() => setTipo("gastos")}
-          color={tipo === "gastos" ? "#009688" : "gray"}
-        />
+        >
+          <Text
+            style={[
+              styles.textoBoton,
+              tipo === "gastos" ? styles.textoActivo : styles.textoInactivo,
+            ]}
+          >
+            GASTOS
+          </Text>
+        </TouchableOpacity>
       </View>
 
+      {/* RESUMEN */}
       <View style={styles.resumen}>
         <View style={styles.caja}>
           <Text style={styles.valor}>
@@ -46,6 +91,7 @@ export default function GraficasScreen()
         </View>
       </View>
 
+      {/* GRÁFICA */}
       <LineChart
         data={{
           labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
@@ -82,26 +128,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 20,
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
+
+  /* BOTONES */
   botones: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "90%",
     marginBottom: 20,
   },
+  boton: {
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+  },
+  botonActivo: {
+    backgroundColor: "#009688",
+  },
+  botonInactivo: {
+    backgroundColor: "#e0e0e0",
+  },
+  textoBoton: {
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  textoActivo: {
+    color: "white",
+  },
+  textoInactivo: {
+    color: "black",
+  },
+
+  /* RESUMEN */
   resumen: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "100%",
     marginBottom: 20,
   },
+
   caja: {
     backgroundColor: "#e0f2f1",
     borderRadius: 10,
@@ -109,15 +174,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "40%",
   },
+
   valor: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#009688",
   },
+
   etiqueta: {
     fontSize: 14,
     color: "#555",
   },
+
   grafica: {
     borderRadius: 10,
     marginTop: 10,

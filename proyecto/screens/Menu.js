@@ -7,11 +7,13 @@ export default function Menu({ navigation }) {
 
       <Button title="Inicio de Sesión" onPress={() => navigation.navigate('InicioSesion')} />
       <Button title="Registro" onPress={() => navigation.navigate('Registro')} />
-      <Button title="Home" onPress={() => navigation.navigate('Home')} />
-      <Button title="Transacciones" onPress={() => navigation.navigate('Transacciones')} />
-      <Button title="Presupuesto" onPress={() => navigation.navigate('Presupuesto')} />
-      <Button title="Notificaciones" onPress={() => navigation.navigate('Notificaciones')} />
-      <Button title="Gráficas" onPress={() => navigation.navigate('Graficas')} />
+
+      {/* 🔥 TODAS ESTAS OPCIONES ENTRAN POR 'Principal' */}
+      <Button title="Home" onPress={() => navigation.navigate('Principal')} />
+      <Button title="Transacciones" onPress={() => navigation.navigate('Principal')} />
+      <Button title="Presupuesto" onPress={() => navigation.navigate('Principal')} />
+      <Button title="Notificaciones" onPress={() => navigation.navigate('Principal')} />
+      <Button title="Gráficas" onPress={() => navigation.navigate('Principal')} />
     </View>
   );
 }
