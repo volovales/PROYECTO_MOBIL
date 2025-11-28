@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import React, { useState, useEffect } from "react";
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import InicioSesion from "./InicioSesion";
+import DatabaseService from "../database/DatabaseService";
+
 export default function RecuperarContraseña() {
   const [email, setEmail] = useState("");
   const [mostrarInicioSesion, setMostrarInicio] = useState(false);
 
+  useEffect(() => {
+    DatabaseService.initialize();
+  }, []);
 
   const showAlert = (title, message) => {
-    // Fallback para web (o entornos donde Alert falle)
     if (Platform.OS === "web") {
-      // eslint-disable-next-line no-alert
       window.alert(`${title}\n\n${message}`);
     } else {
       Alert.alert(title, message);
@@ -17,19 +20,19 @@ export default function RecuperarContraseña() {
   };
 
   const goInicioSesion = () => {
-       Alert.alert( "Inicio Sesion", "Navegando al inicio de sesion.", [
-        {
-          text: "OK",
-          onPress: () => setMostrarInicio(true),
-        },
-      ]);
-    };
-    if (mostrarInicioSesion) {
-      return <InicioSesion />;
-    }
+    Alert.alert("Inicio Sesión", "Navegando al inicio de sesión.", [
+      {
+        text: "OK",
+        onPress: () => setMostrarInicio(true),
+      },
+    ]);
+  };
 
-  const onRecover = () => {
-    console.log("BOTÓN PRESIONADO con email:", email);
+  if (mostrarInicioSesion) {
+    return <InicioSesion />;
+  }
+
+  const onRecover = async () => {
     if (!email.trim()) {
       showAlert(
         "Campo incompleto",
@@ -37,24 +40,47 @@ export default function RecuperarContraseña() {
       );
       return;
     }
-    // Aquí iría la petición real al backend
-    showAlert(
-      "Recuperación",
-      `Se ha enviado un enlace de recuperación a ${email}`
-    );
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email.trim())) {
+      showAlert("Correo inválido", "Ingresa un correo electrónico válido.");
+      return;
+    }
+
+    try {
+      await DatabaseService.initialize();
+      const user = await DatabaseService.getUserByEmail(email.trim());
+
+      if (!user) {
+        showAlert(
+          "Correo no encontrado",
+          "No existe ninguna cuenta registrada con ese correo."
+        );
+        return;
+      }
+
+      showAlert(
+        "Recuperación",
+        `Hemos localizado tu cuenta, ${user.nombre}. Se han enviado instrucciones de recuperación a ${email}.`
+      );
+    } catch (error) {
+      console.log("Error en recuperación:", error);
+      showAlert(
+        "Error",
+        "No se pudo procesar la recuperación. Intenta de nuevo más tarde."
+      );
+    }
   };
 
   return (
     <SafeAreaView style={styles.root}>
       <TouchableOpacity style={styles.InicioBtn} onPress={goInicioSesion}>
-          <Text style={styles.ReturnBtnText}> Regresar</Text>
+        <Text style={styles.ReturnBtnText}> Regresar</Text>
       </TouchableOpacity>
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ahorra+ App</Text>
       </View>
-
-      
 
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -105,8 +131,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   InicioBtn: {
-    textAlign: 'left',
-
+    textAlign: "left",
   },
   title: {
     fontSize: 28,
@@ -137,12 +162,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 14,
   },
-  primaryBtnText: { 
-    color: "#fff", 
-    fontWeight: "700" 
+  primaryBtnText: {
+    color: "#fff",
+    fontWeight: "700",
   },
-  ReturnBtnText: { 
-    color: "#000", 
-    fontWeight: "700"
+  ReturnBtnText: {
+    color: "#000",
+    fontWeight: "700",
   },
 });
