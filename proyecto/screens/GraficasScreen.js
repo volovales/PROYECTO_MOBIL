@@ -1,70 +1,64 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  BackHandler,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, BackHandler } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+
+import DatabaseService from "../database/DatabaseService";   // <-- IMPORTANTE
 
 export default function GraficasScreen({ navigation }) {
   const [tipo, setTipo] = useState("ingresos");
+  const [datosIngresos, setDatosIngresos] = useState([]);
+  const [datosGastos, setDatosGastos] = useState([]);
 
-  const datosIngresos = [3000, 3500, 4200, 5000, 5500, 6000];
-  const datosGastos = [1500, 1200, 1800, 1300, 1600, 2000];
+  const [totalIngresos, setTotalIngresos] = useState(0);
+  const [totalGastos, setTotalGastos] = useState(0);
 
-  // Botón físico (Android)
+  useEffect(() => {
+    const cargarDatos = async () => {
+
+      // 🔵 OBTENER DATOS REALMENTE DE LA BD
+      const ingresos = await DatabaseService.obtenerTotalIngresos();
+      const gastos = await DatabaseService.obtenerTotalGastos();
+
+      setTotalIngresos(ingresos);
+      setTotalGastos(gastos);
+
+      // 🔵 Datos de ejemplo para gráfica
+      setDatosIngresos([300, 500, 700]);
+      setDatosGastos([200, 300, 150]);
+    };
+
+    cargarDatos();
+  }, []);
+
+  // Botón físico para regresar
   useEffect(() => {
     const backAction = () => {
       navigation.goBack();
       return true;
     };
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
-
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
     return () => backHandler.remove();
   }, []);
 
   return (
     <View style={styles.container}>
 
-      {/* BOTONES PERSONALIZADOS */}
+      {/* BOTONES */}
       <View style={styles.botones}>
         <TouchableOpacity
-          style={[
-            styles.boton,
-            tipo === "ingresos" ? styles.botonActivo : styles.botonInactivo,
-          ]}
+          style={[styles.boton, tipo === "ingresos" ? styles.botonActivo : styles.botonInactivo]}
           onPress={() => setTipo("ingresos")}
         >
-          <Text
-            style={[
-              styles.textoBoton,
-              tipo === "ingresos" ? styles.textoActivo : styles.textoInactivo,
-            ]}
-          >
+          <Text style={[styles.textoBoton, tipo === "ingresos" ? styles.textoActivo : styles.textoInactivo]}>
             INGRESOS
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.boton,
-            tipo === "gastos" ? styles.botonActivo : styles.botonInactivo,
-          ]}
+          style={[styles.boton, tipo === "gastos" ? styles.botonActivo : styles.botonInactivo]}
           onPress={() => setTipo("gastos")}
         >
-          <Text
-            style={[
-              styles.textoBoton,
-              tipo === "gastos" ? styles.textoActivo : styles.textoInactivo,
-            ]}
-          >
+          <Text style={[styles.textoBoton, tipo === "gastos" ? styles.textoActivo : styles.textoInactivo]}>
             GASTOS
           </Text>
         </TouchableOpacity>
@@ -74,7 +68,7 @@ export default function GraficasScreen({ navigation }) {
       <View style={styles.resumen}>
         <View style={styles.caja}>
           <Text style={styles.valor}>
-            {tipo === "ingresos" ? "$45,678.90" : "$1,500.90"}
+            {tipo === "ingresos" ? `$${totalIngresos}` : `$${totalGastos}`}
           </Text>
           <Text style={styles.etiqueta}>
             {tipo === "ingresos" ? "Ganancias" : "Gastos Totales"}
@@ -111,11 +105,6 @@ export default function GraficasScreen({ navigation }) {
           decimalPlaces: 2,
           color: () => "#009688",
           labelColor: () => "#333",
-          propsForDots: {
-            r: "5",
-            strokeWidth: "2",
-            stroke: "#009688",
-          },
         }}
         bezier
         style={styles.grafica}
@@ -125,69 +114,17 @@ export default function GraficasScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    justifyContent: "center",
-  },
-
-  /* BOTONES */
-  botones: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
-  },
-  boton: {
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-  },
-  botonActivo: {
-    backgroundColor: "#009688",
-  },
-  botonInactivo: {
-    backgroundColor: "#e0e0e0",
-  },
-  textoBoton: {
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  textoActivo: {
-    color: "white",
-  },
-  textoInactivo: {
-    color: "black",
-  },
-
-  /* RESUMEN */
-  resumen: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
-  },
-
-  caja: {
-    backgroundColor: "#e0f2f1",
-    borderRadius: 10,
-    padding: 12,
-    alignItems: "center",
-    width: "40%",
-  },
-
-  valor: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#009688",
-  },
-
-  etiqueta: {
-    fontSize: 14,
-    color: "#555",
-  },
-
-  grafica: {
-    borderRadius: 10,
-    marginTop: 10,
-  },
+  container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 20, justifyContent: "center" },
+  botones: { flexDirection: "row", justifyContent: "space-around", marginBottom: 20 },
+  boton: { paddingVertical: 10, paddingHorizontal: 25, borderRadius: 10 },
+  botonActivo: { backgroundColor: "#009688" },
+  botonInactivo: { backgroundColor: "#e0e0e0" },
+  textoBoton: { fontWeight: "bold", fontSize: 14 },
+  textoActivo: { color: "white" },
+  textoInactivo: { color: "black" },
+  resumen: { flexDirection: "row", justifyContent: "space-around", marginBottom: 20 },
+  caja: { backgroundColor: "#e0f2f1", borderRadius: 10, padding: 12, alignItems: "center", width: "40%" },
+  valor: { fontSize: 18, fontWeight: "bold", color: "#009688" },
+  etiqueta: { fontSize: 14, color: "#555" },
+  grafica: { borderRadius: 10, marginTop: 10 },
 });

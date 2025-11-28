@@ -1,143 +1,61 @@
-import { Text, StyleSheet, View, Platform, Alert, Button, TextInput, ActivityIndicator } from 'react-native'
-import React, {useState} from 'react'
+import { useEffect, useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { TransController } from "../controllers/TransController";
+
+const controller = new TransController();
 
 export default function TransaccionesScreen() {
+  const [tipo, setTipo] = useState("ingreso");
+  const [descripcion, setDescripcion] = useState("");
+  const [monto, setMonto] = useState("");
+  const [lista, setLista] = useState([]);
 
-
-  const [nombreApartado, setNombreApartado] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [cantidad, setCantidad] = useState('');
-  const [presionar, setPresionar] = useState(false);
-
-
-  const carga =()=>{
-    if(descripcion.trim()=== '' && nombreApartado.trim() === '' && cantidad.trim() === ''){
-      if(Platform.OS === 'web'){
-        window.alert('Error, por favor complete todos los campos');
-      }
-      else{
-        Alert.alert('Error, por favor complete todo los campos')
-      }
-    }
-    else if(descripcion.trim() === ''){
-      if(Platform.OS === 'web'){
-        window.alert('Error, ingrese la descripción del apartado');
-      }
-      else{
-        Alert.alert('Error, ingrese la descripción del apartado');
-      }
-    }
-    else if(nombreApartado.trim() === ''){
-      if(Platform.OS === 'web'){
-        window.alert('Error, ingrese el nombre del apartado');
-      }
-      else{
-        Alert.alert('Error, ingrese el nombre del apartado');
-      }
-    }
-    else if(cantidad.trim() === ''){
-      if(Platform.OS === 'web'){
-        window.alert('Error, ingrese el monto del movimiento');
-      }
-      else{
-        Alert.alert('Error, ingrese el monto del movimiento');
-      }
-    }
-    else{
-      setPresionar(true);
-      setTimeout(()=>{
-      setPresionar(false);
-      if(Platform.OS === 'web'){
-        window.alert('Transaccion realizada');
-      }
-      else{
-        Alert.alert('Transaccion realizada');
-      }
-      }, 3000);
-    } 
+  const cargar = async () => {
+    const datos = await controller.obtener();
+    setLista(datos);
   };
 
+  const agregar = async () => {
+    await controller.agregar(tipo, descripcion, parseFloat(monto));
+    setDescripcion("");
+    setMonto("");
+    cargar();
+  };
 
+  useEffect(() => {
+    cargar();
+  }, []);
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Transacciones</Text>
 
-      <View style={styles.contenido}>
-
-        <Text style={styles.titulo}>Nueva Transacción</Text>
-
-        <Text style={styles.subtitulo}>Nombre del Apartado: </Text>
-        <TextInput 
-        value = {nombreApartado} 
-        onChangeText={setNombreApartado}
-        maxLength={50}
-        style={styles.recuadro}>
-        </TextInput>
-
-        <Text style={styles.subtitulo}>Descripción:</Text>
-        <TextInput 
-        value = {descripcion} 
-        onChangeText={setDescripcion}
-        maxLength={50}
-        style={styles.recuadro}>
-        </TextInput>
-
-        <Text style={styles.subtitulo}>Cantidad del Presupuesto</Text>
-        <TextInput
-        value={cantidad}
-        onChangeText={setCantidad}
-        maxLength={20}
-        style={styles.recuadro}
-        keyboardType='numeric'>
-        </TextInput>
-
-        <Text style={styles.totalOperacion}>Total: ${parseFloat(cantidad|| 0).toFixed(2)}</Text>
+      <View style={styles.box}>
+        <Text>Tipo:</Text>
+        <TouchableOpacity onPress={() => setTipo("ingreso")}><Text>Ingreso</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setTipo("gasto")}><Text>Gasto</Text></TouchableOpacity>
       </View>
 
-        <View style={styles.botonContainer}>
-          {presionar ? (<ActivityIndicator size='large' color='blue'></ActivityIndicator>) : (<Button color='black' title='Completar Carga' onPress={carga}></Button>)}
-        </View>
+      <TextInput placeholder="Descripción" style={styles.input} value={descripcion} onChangeText={setDescripcion} />
+      <TextInput placeholder="Monto" style={styles.input} value={monto} onChangeText={setMonto} keyboardType="numeric" />
 
-      </View>
-    )
-  
+      <TouchableOpacity onPress={agregar} style={styles.btn}><Text style={styles.btnText}>Guardar</Text></TouchableOpacity>
+
+      <FlatList
+        data={lista}
+        renderItem={({ item }) => (
+          <Text>{item.tipo} - ${item.monto} - {item.descripcion}</Text>
+        )}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex: 1,
-    backgroundColor: '#ffffffff',
-  },
-  titulo:{
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  subtitulo:{
-    fontSize: 18,
-  },
-  recuadro:{
-    backgroundColor: '#cac8c8ee',
-    borderRadius: 5,
-    bordeColor: '#cac8c8ee',
-    paddingHorizontal: 10,
-    paddingVertical: 15,
-    marginBottom: 5,
-    height: 50,
-    width: '100%',
-  },
-  contenido:{
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 15,
-  },
-  botonContainer:{
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent:'center',
-    borderRadius: 10,
-    bottom: 20,
-    alignSelf: 'center',
-  },
-})
+  container: { flex: 1, padding: 20, backgroundColor: "white" },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
+  input: { borderWidth: 1, padding: 8, marginVertical: 5 },
+  btn: { backgroundColor: "#009688", padding: 10, marginTop: 10, borderRadius: 5 },
+  btnText: { color: "white", textAlign: "center" },
+  box: { flexDirection: "row", gap: 10 }
+});
