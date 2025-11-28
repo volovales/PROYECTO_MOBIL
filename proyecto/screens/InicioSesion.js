@@ -1,57 +1,89 @@
-import React, { useState } from "react";
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Home from "./HomeScreen";
 import Recuperar from "./RecuperarContraseña";
 import Registro from "./Registro";
+import DatabaseService from "../database/DatabaseService";
+
 export default function InicioSesion() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mostrarHome, setMostrarHome] = useState(false); 
-  const [mostrarRegistro, setMostrarRegistro] = useState(false); 
-  const [mostrarOlvContra, setMostrarOlvContra] = useState(false); 
-  
-  const onContinue = () => {
+  const [mostrarHome, setMostrarHome] = useState(false);
+  const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [mostrarOlvContra, setMostrarOlvContra] = useState(false);
+
+  useEffect(() => {
+    DatabaseService.initialize();
+  }, []);
+
+  const onContinue = async () => {
     if (email.trim() === "" || password.trim() === "") {
       Alert.alert("Campo vacío", "Ingresa tu correo electrónico y contraseña.");
       return;
     }
 
-    Alert.alert("Inicio de sesión", "Gracias por iniciar sesión.", [
-      {
-        text: "OK",
-        onPress: () => setMostrarHome(true),
-      },
-    ]);
+    try {
+      const user = await DatabaseService.getUserEmailPassword(
+        email.trim(),
+        password
+      );
+
+      if (!user) {
+        Alert.alert("Error", "Correo o contraseña incorrectos");
+        return;
+      }
+
+      Alert.alert("Inicio de sesión", "Gracias por iniciar sesión.", [
+        {
+          text: "OK",
+          onPress: () => setMostrarHome(true),
+        },
+      ]);
+    } catch (error) {
+      console.log("Error en login: ", error);
+      Alert.alert("Error", "No se pudo validar tu cuenta");
+    }
   };
-  if (mostrarHome) {
-    return <Home />;
-  }
 
   const goRecuperar = () => {
-     Alert.alert( "Recuperar Contraseña", "Navegando a Recuperar Contraseña.", [
+    Alert.alert("Recuperar Contraseña", "Navegando a Recuperar Contraseña.", [
       {
         text: "OK",
         onPress: () => setMostrarOlvContra(true),
       },
     ]);
   };
-  if (mostrarOlvContra) {
-    return <Recuperar />;
-  }
 
   const goRegistro = () => {
-     Alert.alert( "Registro", "Navegando a Registro.", [
+    Alert.alert("Registro", "Navegando a Registro.", [
       {
         text: "OK",
         onPress: () => setMostrarRegistro(true),
       },
     ]);
   };
+
+  if (mostrarHome) {
+    return <Home />;
+  }
+
+  if (mostrarOlvContra) {
+    return <Recuperar />;
+  }
+
   if (mostrarRegistro) {
     return <Registro />;
   }
 
- 
   return (
     <SafeAreaView style={styles.root}>
       <Text style={styles.headerTitle}>Ahorra+ App</Text>
@@ -91,7 +123,6 @@ export default function InicioSesion() {
           <Text style={styles.primaryBtnText}>Continuar</Text>
         </TouchableOpacity>
 
-
         <TouchableOpacity style={styles.primaryBtn} onPress={goRecuperar}>
           <Text style={styles.primaryBtnText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
@@ -126,14 +157,12 @@ export default function InicioSesion() {
           <Text>Política de privacidad</Text>.
         </Text>
 
-        {goRegistro ? (
-          <Text style={styles.switchAuth}>
-            ¿No tienes cuenta?{" "}
-            <Text style={styles.link} onPress={goRegistro}>
-              Regístrate
-            </Text>
+        <Text style={styles.switchAuth}>
+          ¿No tienes cuenta?{" "}
+          <Text style={styles.link} onPress={goRegistro}>
+            Regístrate
           </Text>
-        ) : null}
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -232,4 +261,5 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   switchAuth: { textAlign: "center", marginTop: 16, color: "#374151" },
+  link: { textDecorationLine: "underline" },
 });
