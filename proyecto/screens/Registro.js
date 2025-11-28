@@ -1,13 +1,37 @@
 import React, { useState } from "react";
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import InicioSesion from "./InicioSesion";
-  
+import DatabaseService from "../database/DatabaseService";
+
+
 export default function Registro({ goLogin }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mostrarInicioSesion, setMostrarInicio] = useState(false);
+
+  const validar = () => {
+    if (!fullName || !email || !username || !password){
+      Alert.alert(
+        "Campos incompletos", "Llena todos los campos para continuar"
+      );
+      return false;
+    }
+  
+  const emailname = /\S+@\S+\.\S+/;
+
+  if (!emailname.test(email)){
+    Alert.alert("Correo invalido", "Ingresa un correo valido");
+    return false;
+  }
+
+  if (password.length < 6) {
+    Alert.alert("Contraseña muy corta", "La contraseña debe tener al enos 6 caracteres")
+  return false;
+}
+return true;
+};
 
   const goInicioSesion = () => {
          Alert.alert( "Inicio Sesion", "Navegando al inicio de sesion.", [
@@ -22,12 +46,35 @@ export default function Registro({ goLogin }) {
       }
 
 
-  const onRegister = () => {
-    if (!fullName || !email || !username || !password) {
-      Alert.alert("Campos incompletos", "Llena todos los campos para continuar.");
-      return;
+  const onRegister = async () => {
+    if (!validar()) return; 
+    
+    try {
+      await DatabaseService.registerUser(
+        fullName.trim(),
+        email.trim(),
+        username.trim(),
+        password
+      );
+
+      Alert.alert("Registro", "Cuenta creada correctamente", [
+        {
+          text: "Ir a inicio sesión", 
+          onPress: () =>setMostrarInicio(true), 
+        },
+      ]);
+    } catch (error){
+      console.log("Error al registrar: " + error);
+      if (error.message === "Datos duplicados"){
+        Alert.alert(
+          "Usuario existente", "El correo o nombre de usuario ya estan registrados" 
+        );
+      } else {
+        Alert.alert(
+          "Error", "No se pudo crear la cuenta"
+        );
+      }
     }
-    Alert.alert("Registro", "¡Cuenta creada (demo)!");
   };
 
   return (
