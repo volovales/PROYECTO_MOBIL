@@ -1,5 +1,5 @@
 // PresupuestosScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,125 +8,152 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Modal,
-} from 'react-native';
+  Modal
+} from "react-native";
 
-export default function PresupuestosScreen({ setScreen }) {
-  const calendarioIcon = 'https://cdn-icons-png.flaticon.com/512/3652/3652191.png';
+import DatabaseService from "../database/DatabaseService";
 
-  const [presupuestos, setPresupuestos] = useState([
-    { id: 1, nombre: 'Alimentación', cantidad: 10.99, icon: calendarioIcon },
-    { id: 2, nombre: 'Transporte', cantidad: 8.99, icon: calendarioIcon },
-    { id: 3, nombre: 'Cine', cantidad: 10.99, icon: calendarioIcon },
-    { id: 4, nombre: 'GYM', cantidad: 8.99, icon: calendarioIcon },
-  ]);
+export default function PresupuestosScreen({ navigation }) {
 
-  const [nuevoNombre, setNuevoNombre] = useState('');
-  const [nuevoMonto, setNuevoMonto] = useState('');
+  const [presupuestos, setPresupuestos] = useState([]);
+
+  const [nuevoNombre, setNuevoNombre] = useState("");
+  const [nuevoMonto, setNuevoMonto] = useState("");
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [presupuestoEditando, setPresupuestoEditando] = useState(null);
-  const [nuevoNombreEdicion, setNuevoNombreEdicion] = useState('');
-  const [nuevoValorEdicion, setNuevoValorEdicion] = useState('');
+  const [editId, setEditId] = useState(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editMonto, setEditMonto] = useState("");
 
-  // Calcular totales
-  const subtotal = presupuestos.reduce((acc, p) => acc + p.cantidad, 0);
-  const impuestos = subtotal * 0.1;
+  const calendarioIcon = "https://cdn-icons-png.flaticon.com/512/3652/3652191.png";
+
+  // Cargar datos
+  const cargarPresupuestos = async () => {
+    try {
+      const data = await DatabaseService.obtenerPresupuestos();
+      setPresupuestos(data || []);
+    } catch (e) {
+      console.log("Error cargando presupuestos:", e);
+    }
+  };
+
+  useEffect(() => { cargarPresupuestos(); }, []);
+
+  // Totales
+  const subtotal = presupuestos.reduce((acc, p) => acc + (Number(p.limite) || 0), 0);
+  const impuestos = subtotal * 0.10;
   const total = subtotal + impuestos;
 
-  const agregarPresupuesto = () => {
-    if (!nuevoNombre || !nuevoMonto) {
-      alert('Por favor completa todos los campos');
+  // Agregar
+  const agregarPresupuesto = async () => {
+    if (!nuevoNombre.trim() || !nuevoMonto) {
+      alert("Completa todos los campos");
       return;
     }
-    const nuevo = {
-      id: Date.now(),
-      nombre: nuevoNombre,
-      cantidad: parseFloat(nuevoMonto),
-      icon: calendarioIcon,
-    };
-    setPresupuestos([...presupuestos, nuevo]);
-    setNuevoNombre('');
-    setNuevoMonto('');
+
+    await DatabaseService.agregarPresupuesto(nuevoNombre, parseFloat(nuevoMonto));
+    await cargarPresupuestos();
+
+    setNuevoNombre("");
+    setNuevoMonto("");
   };
 
-  const eliminarPresupuesto = (id) => {
-    setPresupuestos(presupuestos.filter((p) => p.id !== id));
+  // ELIMINAR
+  const borrar = async (id) => {
+    try {
+      await DatabaseService.eliminarPresupuesto(id);
+      await cargarPresupuestos();
+    } catch (e) {
+      console.log("Error eliminando presupuesto:", e);
+    }
   };
 
-  const abrirModalEdicion = (presupuesto) => {
-    setPresupuestoEditando(presupuesto);
-    setNuevoNombreEdicion(presupuesto.nombre);
-    setNuevoValorEdicion(presupuesto.cantidad.toString());
+  // ABRIR MODAL DE EDICIÓN
+  const abrirEdicion = (pres) => {
+    setEditId(pres.id);
+    setEditNombre(pres.categoria);
+    setEditMonto(String(pres.limite));
     setModalVisible(true);
   };
 
-  const guardarEdicion = () => {
-    if (!nuevoNombreEdicion || !nuevoValorEdicion || isNaN(nuevoValorEdicion)) {
-      alert('Introduce un nombre y monto válido');
+  // GUARDAR EDICIÓN
+  const guardarEdicion = async () => {
+    if (!editNombre.trim() || !editMonto) {
+      alert("Completa todos los campos");
       return;
     }
 
-    setPresupuestos(
-      presupuestos.map((p) =>
-        p.id === presupuestoEditando.id
-          ? { ...p, nombre: nuevoNombreEdicion, cantidad: parseFloat(nuevoValorEdicion) }
-          : p
-      )
-    );
-
+    await DatabaseService.editarPresupuesto(editId, editNombre, parseFloat(editMonto));
     setModalVisible(false);
-    setPresupuestoEditando(null);
-    setNuevoValorEdicion('');
-    setNuevoNombreEdicion('');
+    await cargarPresupuestos();
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* 🔙 Botón de regresar */}
+
+      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backRectButton}
-          onPress={() => setScreen('Menu')}
+          onPress={() => navigation.goBack()}
         >
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Presupuestos</Text>
       </View>
 
       <Text style={styles.subtitle}>Octubre / Noviembre</Text>
 
+      {/* LISTA */}
       {presupuestos.map((p) => (
         <View key={p.id} style={styles.item}>
-          <Image source={{ uri: p.icon }} style={styles.icon} />
+          <Image source={{ uri: calendarioIcon }} style={styles.icon} />
+
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{p.nombre}</Text>
+            <Text style={styles.name}>{p.categoria}</Text>
             <Text style={styles.details}>Cantidad mensual</Text>
           </View>
-          <Text style={styles.price}>${p.cantidad.toFixed(2)}</Text>
 
-          <TouchableOpacity onPress={() => abrirModalEdicion(p)}>
-            <Text style={styles.edit}>✏</Text>
+          <Text style={styles.price}>${Number(p.limite).toFixed(2)}</Text>
+
+          {/* BOTÓN EDITAR */}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => abrirEdicion(p)}
+          >
+            <Text style={styles.editText}>✎</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => eliminarPresupuesto(p.id)}>
-            <Text style={styles.delete}>🗑</Text>
+
+          {/* BOTÓN ELIMINAR */}
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => borrar(p.id)}
+          >
+            <Text style={styles.deleteText}>🗑</Text>
           </TouchableOpacity>
+
         </View>
       ))}
 
       <View style={styles.separator} />
 
+      {/* RESUMEN */}
       <Text style={styles.total}>Subtotal: ${subtotal.toFixed(2)}</Text>
       <Text style={styles.total}>Impuestos (10%): ${impuestos.toFixed(2)}</Text>
       <Text style={styles.totalFinal}>Total: ${total.toFixed(2)}</Text>
 
+      {/* FORMULARIO AGREGAR */}
       <View style={styles.form}>
         <Text style={styles.formTitle}>Agregar nuevo presupuesto</Text>
+
         <TextInput
-          placeholder="Nombre"
+          placeholder="Categoría"
           style={styles.input}
           value={nuevoNombre}
           onChangeText={setNuevoNombre}
         />
+
         <TextInput
           placeholder="Monto"
           keyboardType="numeric"
@@ -134,115 +161,141 @@ export default function PresupuestosScreen({ setScreen }) {
           value={nuevoMonto}
           onChangeText={setNuevoMonto}
         />
+
         <TouchableOpacity style={styles.darkButton} onPress={agregarPresupuesto}>
           <Text style={styles.buttonText}>Agregar</Text>
         </TouchableOpacity>
       </View>
 
-      {/* MODAL DE EDICIÓN */}
+      {/* MODAL EDITAR */}
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <View style={styles.modalBg}>
+          <View style={styles.modalBox}>
+
             <Text style={styles.modalTitle}>Editar presupuesto</Text>
-            <Text style={styles.modalLabel}>Nombre:</Text>
+
             <TextInput
               style={styles.input}
-              value={nuevoNombreEdicion}
-              onChangeText={setNuevoNombreEdicion}
+              value={editNombre}
+              onChangeText={setEditNombre}
             />
-            <Text style={styles.modalLabel}>Monto:</Text>
+
             <TextInput
               style={styles.input}
+              value={editMonto}
               keyboardType="numeric"
-              value={nuevoValorEdicion}
-              onChangeText={setNuevoValorEdicion}
+              onChangeText={setEditMonto}
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.darkButton, { flex: 1, marginRight: 5 }]}
-                onPress={guardarEdicion}
-              >
-                <Text style={styles.buttonText}>Guardar</Text>
+
+            <View style={styles.modalRow}>
+              <TouchableOpacity style={styles.modalCancel} onPress={() => setModalVisible(false)}>
+                <Text style={styles.modalBtnText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.darkButton, { flex: 1, marginLeft: 5 }]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
+
+              <TouchableOpacity style={styles.modalSave} onPress={guardarEdicion}>
+                <Text style={styles.modalBtnText}>Guardar</Text>
               </TouchableOpacity>
             </View>
+
           </View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-  flex: 1,
-  backgroundColor: '#fff',
-  padding: 20,
-  paddingTop: 60, // 👈 Esto baja todo el contenido sin afectar el navegador
-},
+  container: { flex: 1, backgroundColor: "#fff", padding: 20, paddingTop: 60 },
+
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomColor: '#007AFF',
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomColor: "#007AFF",
     borderBottomWidth: 2,
     paddingBottom: 10,
     marginBottom: 10,
   },
   backRectButton: {
-    backgroundColor: '#ffffffff',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,
     marginRight: 10,
   },
-  backArrow: { fontSize: 20, color: '#000000ff', fontWeight: 'bold' },
-  headerTitle: { fontSize: 20, fontWeight: '600', color: '#000' },
-  subtitle: { fontSize: 18, color: '#777', marginBottom: 20 },
-  item: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  backArrow: { fontSize: 20, color: "#000", fontWeight: "bold" },
+  headerTitle: { fontSize: 20, fontWeight: "600" },
+  subtitle: { fontSize: 18, color: "#777", marginBottom: 20 },
+
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15
+  },
   icon: { width: 45, height: 45, marginRight: 10 },
-  name: { fontSize: 16, fontWeight: '600' },
-  details: { color: 'gray', fontSize: 13 },
-  price: { fontWeight: 'bold', marginRight: 10 },
-  edit: { fontSize: 18, marginRight: 8 },
-  delete: { fontSize: 18, color: 'red' },
-  total: { textAlign: 'right', fontSize: 16, fontWeight: '500' },
-  totalFinal: { textAlign: 'right', fontSize: 18, fontWeight: '700', marginTop: 5 },
-  separator: { borderBottomColor: '#ddd', borderBottomWidth: 1, marginVertical: 10 },
+  name: { fontSize: 16, fontWeight: "600" },
+  details: { fontSize: 13, color: "gray" },
+  price: { fontWeight: "bold", marginRight: 10 },
+
+  editButton: { padding: 8 },
+  editText: { fontSize: 20 },
+
+  deleteButton: { padding: 8 },
+  deleteText: { fontSize: 20, color: "red" },
+
+  separator: { borderBottomWidth: 1, borderBottomColor: "#ddd", marginVertical: 15 },
+  total: { textAlign: "right", fontSize: 16, fontWeight: "500" },
+  totalFinal: { textAlign: "right", fontSize: 18, fontWeight: "700", marginTop: 5 },
+
   form: { marginTop: 25 },
-  formTitle: { fontSize: 18, fontWeight: '600', marginBottom: 10 },
+  formTitle: { fontSize: 18, fontWeight: "600", marginBottom: 10 },
+
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 8,
     marginBottom: 10,
   },
+
   darkButton: {
-    backgroundColor: '#333',
+    backgroundColor: "#333",
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  buttonText: { color: '#fff', fontWeight: '600' },
-  modalContainer: {
+  buttonText: { color: "#fff", fontWeight: "600" },
+
+  modalBg: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center"
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
+  modalBox: {
+    width: "85%",
+    backgroundColor: "#fff",
     padding: 20,
-    elevation: 5,
+    borderRadius: 12
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 10, textAlign: 'center' },
-  modalLabel: { fontSize: 16, marginBottom: 5 },
-  modalButtons: { flexDirection: 'row', marginTop: 10 },
+  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 10 },
+  modalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20
+  },
+  modalCancel: {
+    backgroundColor: "#999",
+    padding: 10,
+    borderRadius: 8,
+    width: "45%",
+    alignItems: "center"
+  },
+  modalSave: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 8,
+    width: "45%",
+    alignItems: "center"
+  },
+  modalBtnText: { color: "#fff", fontWeight: "bold" }
 });

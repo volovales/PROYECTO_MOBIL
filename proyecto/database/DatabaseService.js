@@ -175,22 +175,40 @@ class DatabaseService {
     return await this.db.getAllAsync("SELECT * FROM presupuestos");
   }
 
-  // ───────── ESTADÍSTICAS PARA GRÁFICAS ─────────
+  // ✏️ ***EDITAR presupuesto***  
+  async editarPresupuesto(id, categoria, limite) {
+    await this.initialize();
+    return await this.db.runAsync(
+      "UPDATE presupuestos SET categoria = ?, limite = ? WHERE id = ?",
+      [categoria, limite, id]
+    );
+  }
+
+  // 🗑️ ***ELIMINAR presupuesto***  
+  async eliminarPresupuesto(id) {
+    await this.initialize();
+    return await this.db.runAsync(
+      "DELETE FROM presupuestos WHERE id = ?",
+      [id]
+    );
+  }
+
+  // ───────── ESTADÍSTICAS ─────────
 
   async obtenerTotalIngresos() {
     await this.initialize();
-    const result = await this.db.getFirstAsync(
-      "SELECT SUM(monto) as total FROM transacciones WHERE tipo='ingreso'"
+    const r = await this.db.getFirstAsync(
+      "SELECT SUM(monto) AS total FROM transacciones WHERE tipo='ingreso'"
     );
-    return result?.total || 0;
+    return r?.total || 0;
   }
 
   async obtenerTotalGastos() {
     await this.initialize();
-    const result = await this.db.getFirstAsync(
-      "SELECT SUM(monto) as total FROM transacciones WHERE tipo='gasto'"
+    const r = await this.db.getFirstAsync(
+      "SELECT SUM(monto) AS total FROM transacciones WHERE tipo='gasto'"
     );
-    return result?.total || 0;
+    return r?.total || 0;
   }
 }
 

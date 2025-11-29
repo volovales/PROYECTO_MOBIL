@@ -6,27 +6,24 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido</Text>
-      <View style={styles.container2} >
-        <Button color = 'black' title="Ingresos" onPress={() => navigation.navigate('Ingresos')} />
-        <Button color = 'grey' title="Gastos" onPress={() => navigation.navigate('Gastos')} />
-      </View>
+
+
       <Text style={styles.subtitulo}>Sus finanzas son:</Text>
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Saldo actual:</Text>
         <Text style={styles.balance}>$0.00</Text>
       </View>
-      <Button color = 'grey' title="Ver transacciones" onPress={() => navigation.navigate('Transacciones')} />
-      <Button color = 'grey' title="Presupuesto" onPress={() => navigation.navigate('Presupuestos')} />
+
+      <Button color='grey' title="Ver transacciones" onPress={() => navigation.navigate('Transacciones')} />
+      <Button color='grey' title="Presupuesto" onPress={() => navigation.navigate('Presupuestos')} />
       <Button color='grey' title="Ver gráficas" onPress={() => navigation.navigate('Graficas')} />
-      <Button color = 'grey' title="Ver perfil" onPress={() => navigation.navigate('Perfil')} />
+      <Button color='grey' title="Ver perfil" onPress={() => navigation.navigate('Perfil')} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background:{
-
-  },
   container: {
     flex: 1,
     backgroundColor: '#ffffffff',
