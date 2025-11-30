@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Alert,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput,TouchableOpacity, View,  } from "react-native";
 import DatabaseService from "../database/DatabaseService";
 
 export default function RecuperarContraseña({ navigation }) {
