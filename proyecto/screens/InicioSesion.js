@@ -9,17 +9,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Home from "./HomeScreen";
-import Recuperar from "./RecuperarContraseña";
-import Registro from "./Registro";
 import DatabaseService from "../database/DatabaseService";
 
-export default function InicioSesion() {
+export default function InicioSesion({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mostrarHome, setMostrarHome] = useState(false);
-  const [mostrarRegistro, setMostrarRegistro] = useState(false);
-  const [mostrarOlvContra, setMostrarOlvContra] = useState(false);
 
   useEffect(() => {
     DatabaseService.initialize();
@@ -42,10 +36,12 @@ export default function InicioSesion() {
         return;
       }
 
+      DatabaseService.setCurrentUser(user);
+
       Alert.alert("Inicio de sesión", "Gracias por iniciar sesión.", [
         {
           text: "OK",
-          onPress: () => setMostrarHome(true),
+          onPress: () => navigation.replace("MainTabs"),
         },
       ]);
     } catch (error) {
@@ -58,7 +54,7 @@ export default function InicioSesion() {
     Alert.alert("Recuperar Contraseña", "Navegando a Recuperar Contraseña.", [
       {
         text: "OK",
-        onPress: () => setMostrarOlvContra(true),
+        onPress: () => navigation.navigate("RecuperarContraseña"),
       },
     ]);
   };
@@ -67,22 +63,10 @@ export default function InicioSesion() {
     Alert.alert("Registro", "Navegando a Registro.", [
       {
         text: "OK",
-        onPress: () => setMostrarRegistro(true),
+        onPress: () => navigation.navigate("Registro"),
       },
     ]);
   };
-
-  if (mostrarHome) {
-    return <Home />;
-  }
-
-  if (mostrarOlvContra) {
-    return <Recuperar />;
-  }
-
-  if (mostrarRegistro) {
-    return <Registro />;
-  }
 
   return (
     <SafeAreaView style={styles.root}>
