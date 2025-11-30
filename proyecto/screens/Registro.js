@@ -1,54 +1,55 @@
 import React, { useState } from "react";
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
-import InicioSesion from "./InicioSesion";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import DatabaseService from "../database/DatabaseService";
 
-
-export default function Registro({ goLogin }) {
+export default function Registro({ navigation }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [mostrarInicioSesion, setMostrarInicio] = useState(false);
+  const [confirmPass, setConfirmPass] = useState("");
 
   const validar = () => {
-    if (!fullName || !email || !username || !password){
-      Alert.alert(
-        "Campos incompletos", "Llena todos los campos para continuar"
-      );
+    if (!fullName || !email || !username || !password || !confirmPass) {
+      Alert.alert("Campos incompletos", "Llena todos los campos para continuar");
       return false;
     }
-  
-  const emailname = /\S+@\S+\.\S+/;
 
-  if (!emailname.test(email)){
-    Alert.alert("Correo invalido", "Ingresa un correo valido");
-    return false;
-  }
+    const emailname = /\S+@\S+\.\S+/;
 
-  if (password.length < 6) {
-    Alert.alert("Contraseña muy corta", "La contraseña debe tener al enos 6 caracteres")
-  return false;
-}
-return true;
-};
+    if (!emailname.test(email)) {
+      Alert.alert("Correo inválido", "Ingresa un correo válido");
+      return false;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Contraseña muy corta", "Debe tener al menos 6 caracteres");
+      return false;
+    }
+
+    if (password !== confirmPass) {
+      Alert.alert("Error", "Las contraseñas no coinciden");
+      return false;
+    }
+
+    return true;
+  };
 
   const goInicioSesion = () => {
-         Alert.alert( "Inicio Sesion", "Navegando al inicio de sesion.", [
-          {
-            text: "OK",
-            onPress: () => setMostrarInicio(true),
-          },
-        ]);
-      };
-      if (mostrarInicioSesion) {
-        return <InicioSesion />;
-      }
-
+    navigation.goBack();
+  };
 
   const onRegister = async () => {
-    if (!validar()) return; 
-    
+    if (!validar()) return;
+
     try {
       await DatabaseService.registerUser(
         fullName.trim(),
@@ -59,20 +60,20 @@ return true;
 
       Alert.alert("Registro", "Cuenta creada correctamente", [
         {
-          text: "Ir a inicio sesión", 
-          onPress: () =>setMostrarInicio(true), 
+          text: "Ir a inicio sesión",
+          onPress: () => navigation.replace("InicioSesion"),
         },
       ]);
-    } catch (error){
+    } catch (error) {
       console.log("Error al registrar: " + error);
-      if (error.message === "Datos duplicados"){
+
+      if (error.message === "Datos duplicados") {
         Alert.alert(
-          "Usuario existente", "El correo o nombre de usuario ya estan registrados" 
+          "Usuario existente",
+          "El correo o nombre de usuario ya están registrados"
         );
       } else {
-        Alert.alert(
-          "Error", "No se pudo crear la cuenta"
-        );
+        Alert.alert("Error", "No se pudo crear la cuenta");
       }
     }
   };
@@ -80,11 +81,15 @@ return true;
   return (
     <SafeAreaView style={styles.root}>
       <TouchableOpacity style={styles.InicioBtn} onPress={goInicioSesion}>
-                <Text style={styles.ReturnBtnText}> Regresar</Text>
+        <Text style={styles.ReturnBtnText}> Regresar</Text>
       </TouchableOpacity>
+
       <Text style={styles.headerTitle}>Ahorra+ App</Text>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        
+
+      <ScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: 300 }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Registrarse</Text>
 
         <Text style={styles.label}>Nombre Completo</Text>
@@ -127,24 +132,15 @@ return true;
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity
-          style={styles.socialBtn}
-          onPress={() => Alert.alert("Google", "Continuar con Google")}
-        >
-          <View style={styles.socialContent}>
-            <Text style={styles.socialText}>Continuar con Google</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.socialBtn}
-          onPress={() => Alert.alert("Apple", "Continuar con Apple ")}
-        >
-          <View style={styles.socialContent}>
-            <Text style={styles.socialText}>Continuar con Apple</Text>
-          </View>
-        </TouchableOpacity>
-        
+        <Text style={styles.label}>Confirmar contraseña</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="********"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry
+          value={confirmPass}
+          onChangeText={setConfirmPass}
+        />
 
         <TouchableOpacity style={styles.primaryBtn} onPress={onRegister}>
           <Text style={styles.primaryBtnText}>Registrarse</Text>
@@ -155,9 +151,21 @@ return true;
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
-  scroll: { flexGrow: 1, padding: 24 },
-  title: { fontSize: 28, fontWeight: "700", textAlign: "center", marginBottom: 16 },
+  root: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scroll: {
+    flexGrow: 1,
+    padding: 24,
+    paddingBottom: 200,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 16,
+  },
   label: {
     marginTop: 12,
     marginBottom: 6,
@@ -165,12 +173,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
-   headerTitle: { 
-        flex: 1, 
-        textAlign: "center", 
-        fontSize: 18, 
-        fontWeight: "700" 
-    },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "700",
+  },
   input: {
     height: 44,
     borderRadius: 10,
@@ -179,24 +187,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-  socialBtn: {
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-  socialContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  socialIcon: { fontSize: 16, marginRight: 8 },
-  socialText: { fontSize: 14, fontWeight: "600" },
-  smallText: { fontSize: 12, color: "#6B7280", textAlign: "center", marginTop: 10 },
-  link: { textDecorationLine: "underline" },
   primaryBtn: {
     height: 46,
     borderRadius: 10,
@@ -205,5 +195,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 14,
   },
-  primaryBtnText: { color: "#fff", fontWeight: "700" },
+  primaryBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  InicioBtn: {
+    marginLeft: 16,
+    marginTop: 16,
+  },
+  ReturnBtnText: {
+    fontWeight: "700",
+  },
 });
