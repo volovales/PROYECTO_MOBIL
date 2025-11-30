@@ -1,4 +1,3 @@
-// PresupuestosScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -16,7 +15,6 @@ import DatabaseService from "../database/DatabaseService";
 export default function PresupuestosScreen({ navigation }) {
 
   const [presupuestos, setPresupuestos] = useState([]);
-
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoMonto, setNuevoMonto] = useState("");
 
@@ -27,7 +25,6 @@ export default function PresupuestosScreen({ navigation }) {
 
   const calendarioIcon = "https://cdn-icons-png.flaticon.com/512/3652/3652191.png";
 
-  // Cargar datos
   const cargarPresupuestos = async () => {
     try {
       const data = await DatabaseService.obtenerPresupuestos();
@@ -37,28 +34,41 @@ export default function PresupuestosScreen({ navigation }) {
     }
   };
 
-  useEffect(() => { cargarPresupuestos(); }, []);
+  useEffect(() => {
+    cargarPresupuestos();
+  }, []);
 
-  // Totales
-  const subtotal = presupuestos.reduce((acc, p) => acc + (Number(p.limite) || 0), 0);
+  const subtotal = presupuestos.reduce(
+    (acc, p) => acc + (Number(p.limite) || 0),
+    0
+  );
   const impuestos = subtotal * 0.10;
   const total = subtotal + impuestos;
 
-  // Agregar
   const agregarPresupuesto = async () => {
-    if (!nuevoNombre.trim() || !nuevoMonto) {
+    if (!nuevoNombre.trim() || !nuevoMonto.trim()) {
       alert("Completa todos los campos");
       return;
     }
 
-    await DatabaseService.agregarPresupuesto(nuevoNombre, parseFloat(nuevoMonto));
-    await cargarPresupuestos();
+    const limite = parseFloat(nuevoMonto.toString().replace(",", "."));
 
-    setNuevoNombre("");
-    setNuevoMonto("");
+    if (isNaN(limite)) {
+      alert("El monto debe ser un número válido");
+      return;
+    }
+
+    try {
+      await DatabaseService.agregarPresupuesto(nuevoNombre.trim(), limite);
+      await cargarPresupuestos();
+      setNuevoNombre("");
+      setNuevoMonto("");
+    } catch (e) {
+      console.log("Error al agregar presupuesto:", e);
+      alert("Error al guardar presupuesto: " + (e?.message || "Error desconocido"));
+    }
   };
 
-  // ELIMINAR
   const borrar = async (id) => {
     try {
       await DatabaseService.eliminarPresupuesto(id);
@@ -68,7 +78,6 @@ export default function PresupuestosScreen({ navigation }) {
     }
   };
 
-  // ABRIR MODAL DE EDICIÓN
   const abrirEdicion = (pres) => {
     setEditId(pres.id);
     setEditNombre(pres.categoria);
@@ -76,22 +85,31 @@ export default function PresupuestosScreen({ navigation }) {
     setModalVisible(true);
   };
 
-  // GUARDAR EDICIÓN
   const guardarEdicion = async () => {
     if (!editNombre.trim() || !editMonto) {
       alert("Completa todos los campos");
       return;
     }
 
-    await DatabaseService.editarPresupuesto(editId, editNombre, parseFloat(editMonto));
-    setModalVisible(false);
-    await cargarPresupuestos();
+    const limiteNuevo = parseFloat(editMonto.toString().replace(",", "."));
+
+    if (isNaN(limiteNuevo)) {
+      alert("El monto debe ser un número válido");
+      return;
+    }
+
+    try {
+      await DatabaseService.editarPresupuesto(editId, editNombre, limiteNuevo);
+      setModalVisible(false);
+      await cargarPresupuestos();
+    } catch (e) {
+      console.log("Error al editar presupuesto:", e);
+      alert("Ocurrió un error al editar el presupuesto");
+    }
   };
 
   return (
     <ScrollView style={styles.container}>
-
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backRectButton}
@@ -105,7 +123,6 @@ export default function PresupuestosScreen({ navigation }) {
 
       <Text style={styles.subtitle}>Octubre / Noviembre</Text>
 
-      {/* LISTA */}
       {presupuestos.map((p) => (
         <View key={p.id} style={styles.item}>
           <Image source={{ uri: calendarioIcon }} style={styles.icon} />
@@ -115,9 +132,8 @@ export default function PresupuestosScreen({ navigation }) {
             <Text style={styles.details}>Cantidad mensual</Text>
           </View>
 
-          <Text style={styles.price}>${Number(p.limite).toFixed(2)}</Text>
+          <Text style={styles.price}>${Number(p.limite || 0).toFixed(2)}</Text>
 
-          {/* BOTÓN EDITAR */}
           <TouchableOpacity
             style={styles.editButton}
             onPress={() => abrirEdicion(p)}
@@ -125,25 +141,21 @@ export default function PresupuestosScreen({ navigation }) {
             <Text style={styles.editText}>✎</Text>
           </TouchableOpacity>
 
-          {/* BOTÓN ELIMINAR */}
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => borrar(p.id)}
           >
             <Text style={styles.deleteText}>🗑</Text>
           </TouchableOpacity>
-
         </View>
       ))}
 
       <View style={styles.separator} />
 
-      {/* RESUMEN */}
       <Text style={styles.total}>Subtotal: ${subtotal.toFixed(2)}</Text>
       <Text style={styles.total}>Impuestos (10%): ${impuestos.toFixed(2)}</Text>
       <Text style={styles.totalFinal}>Total: ${total.toFixed(2)}</Text>
 
-      {/* FORMULARIO AGREGAR */}
       <View style={styles.form}>
         <Text style={styles.formTitle}>Agregar nuevo presupuesto</Text>
 
@@ -167,11 +179,9 @@ export default function PresupuestosScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* MODAL EDITAR */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalBg}>
           <View style={styles.modalBox}>
-
             <Text style={styles.modalTitle}>Editar presupuesto</Text>
 
             <TextInput
@@ -188,11 +198,17 @@ export default function PresupuestosScreen({ navigation }) {
             />
 
             <View style={styles.modalRow}>
-              <TouchableOpacity style={styles.modalCancel} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.modalCancel}
+                onPress={() => setModalVisible(false)}
+              >
                 <Text style={styles.modalBtnText}>Cancelar</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.modalSave} onPress={guardarEdicion}>
+              <TouchableOpacity
+                style={styles.modalSave}
+                onPress={guardarEdicion}
+              >
                 <Text style={styles.modalBtnText}>Guardar</Text>
               </TouchableOpacity>
             </View>
@@ -200,14 +216,12 @@ export default function PresupuestosScreen({ navigation }) {
           </View>
         </View>
       </Modal>
-
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 20, paddingTop: 60 },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -225,7 +239,6 @@ const styles = StyleSheet.create({
   backArrow: { fontSize: 20, color: "#000", fontWeight: "bold" },
   headerTitle: { fontSize: 20, fontWeight: "600" },
   subtitle: { fontSize: 18, color: "#777", marginBottom: 20 },
-
   item: {
     flexDirection: "row",
     alignItems: "center",
@@ -235,20 +248,15 @@ const styles = StyleSheet.create({
   name: { fontSize: 16, fontWeight: "600" },
   details: { fontSize: 13, color: "gray" },
   price: { fontWeight: "bold", marginRight: 10 },
-
   editButton: { padding: 8 },
   editText: { fontSize: 20 },
-
   deleteButton: { padding: 8 },
   deleteText: { fontSize: 20, color: "red" },
-
   separator: { borderBottomWidth: 1, borderBottomColor: "#ddd", marginVertical: 15 },
   total: { textAlign: "right", fontSize: 16, fontWeight: "500" },
   totalFinal: { textAlign: "right", fontSize: 18, fontWeight: "700", marginTop: 5 },
-
   form: { marginTop: 25 },
   formTitle: { fontSize: 18, fontWeight: "600", marginBottom: 10 },
-
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -256,15 +264,13 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 10,
   },
-
   darkButton: {
-    backgroundColor: "#333",
+    backgroundColor: "#333333ff",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "600" },
-
   modalBg: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
