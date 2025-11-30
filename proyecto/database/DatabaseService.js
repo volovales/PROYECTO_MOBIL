@@ -7,6 +7,7 @@ class DatabaseService {
     this.storageKey = "usuarios";
   }
 
+  // ───────── INICIALIZACIÓN ─────────
   async initialize() {
     if (Platform.OS === "web") {
       console.log("Usando LocalStorage (web)");
@@ -18,8 +19,8 @@ class DatabaseService {
     console.log("Usando SQLite (móvil)");
     this.db = await SQLite.openDatabaseAsync("miapp.db");
 
-    // TABLA USUARIOS
-    await this.db.execAsync(`
+    // Crear tablas correctamente usando runAsync()
+    await this.db.runAsync(`
       CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
@@ -30,8 +31,7 @@ class DatabaseService {
       );
     `);
 
-    // TABLA TRANSACCIONES
-    await this.db.execAsync(`
+    await this.db.runAsync(`
       CREATE TABLE IF NOT EXISTS transacciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tipo TEXT NOT NULL,
@@ -41,8 +41,7 @@ class DatabaseService {
       );
     `);
 
-    // TABLA PRESUPUESTOS
-    await this.db.execAsync(`
+    await this.db.runAsync(`
       CREATE TABLE IF NOT EXISTS presupuestos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         categoria TEXT NOT NULL,
@@ -53,7 +52,6 @@ class DatabaseService {
   }
 
   // ───────── USUARIOS ─────────
-
   async getAll() {
     await this.initialize();
 
@@ -76,7 +74,7 @@ class DatabaseService {
       );
       if (exists) throw new Error("Datos duplicados");
 
-      const nuevoUsuario = {
+      const nuevo = {
         id: Date.now(),
         nombre,
         email,
@@ -85,14 +83,14 @@ class DatabaseService {
         fecha_creacion: new Date().toISOString(),
       };
 
-      usuarios.unshift(nuevoUsuario);
+      usuarios.unshift(nuevo);
       localStorage.setItem(this.storageKey, JSON.stringify(usuarios));
-      return nuevoUsuario;
+      return nuevo;
     }
 
     try {
       const result = await this.db.runAsync(
-        "INSERT INTO usuarios(nombre, email, username, password) VALUES (?, ?, ?, ?)",
+        "INSERT INTO usuarios (nombre, email, username, password) VALUES (?, ?, ?, ?)",
         [nombre, email, username, password]
       );
 
@@ -114,17 +112,16 @@ class DatabaseService {
 
     if (Platform.OS === "web") {
       const usuarios = await this.getAll();
-      return (
-        usuarios.find(
-          (u) => u.email === email.trim() && u.password === password
-        ) || null
-      );
+      return usuarios.find(
+        (u) => u.email === email.trim() && u.password === password
+      ) || null;
     }
 
     const rows = await this.db.getAllAsync(
       "SELECT * FROM usuarios WHERE email = ? AND password = ? LIMIT 1",
       [email.trim(), password]
     );
+
     return rows.length ? rows[0] : null;
   }
 
@@ -140,11 +137,11 @@ class DatabaseService {
       "SELECT * FROM usuarios WHERE email = ? LIMIT 1",
       [email.trim()]
     );
+
     return rows.length ? rows[0] : null;
   }
 
   // ───────── TRANSACCIONES ─────────
-
   async agregarTransaccion(tipo, descripcion, monto) {
     await this.initialize();
     return await this.db.runAsync(
@@ -161,7 +158,6 @@ class DatabaseService {
   }
 
   // ───────── PRESUPUESTOS ─────────
-
   async agregarPresupuesto(categoria, limite) {
     await this.initialize();
     return await this.db.runAsync(
@@ -175,7 +171,6 @@ class DatabaseService {
     return await this.db.getAllAsync("SELECT * FROM presupuestos");
   }
 
-  // ✏️ ***EDITAR presupuesto***  
   async editarPresupuesto(id, categoria, limite) {
     await this.initialize();
     return await this.db.runAsync(
@@ -184,7 +179,6 @@ class DatabaseService {
     );
   }
 
-  // 🗑️ ***ELIMINAR presupuesto***  
   async eliminarPresupuesto(id) {
     await this.initialize();
     return await this.db.runAsync(
@@ -194,7 +188,6 @@ class DatabaseService {
   }
 
   // ───────── ESTADÍSTICAS ─────────
-
   async obtenerTotalIngresos() {
     await this.initialize();
     const r = await this.db.getFirstAsync(
