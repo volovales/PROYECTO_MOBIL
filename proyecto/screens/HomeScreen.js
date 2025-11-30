@@ -1,24 +1,102 @@
-import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
-import GraficasScreen from './GraficasScreen'; 
+// Screens/HomeScreen.js
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+
+import DatabaseService from "../database/DatabaseService";
+import { TransController } from "../controller/TransController";
+
+const transController = new TransController();
 
 export default function HomeScreen({ navigation }) {
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const [totalIngresos, setTotalIngresos] = useState(0);
+  const [totalGastos, setTotalGastos] = useState(0);
+
+  const cerrarSesion = () => {
+    DatabaseService.setCurrentUser(null);
+    navigation.replace("InicioSesion");
+  };
+
+  const cargarDatosTransacciones = async () => {
+    try {
+      const lista = await transController.obtener();
+
+      let ing = 0;
+      let gas = 0;
+
+      lista.forEach((t) => {
+        const montoNum = Number(t.monto) || 0;
+        if (t.tipo === "ingreso") ing += montoNum;
+        if (t.tipo === "gasto") gas += montoNum;
+      });
+
+      setTotalIngresos(ing);
+      setTotalGastos(gas);
+
+      console.log(
+        "[HOME] Transacciones cargadas:",
+        lista.length,
+        "Ingresos:",
+        ing,
+        "Gastos:",
+        gas
+      );
+    } catch (e) {
+      console.log("Error cargando transacciones en Home:", e);
+    }
+  };
+
+  useEffect(() => {
+    cargarDatosTransacciones();
+
+    const unsubscribe = navigation.addListener("focus", () => {
+      cargarDatosTransacciones();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const saldoActual = totalIngresos - totalGastos;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido</Text>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => setMenuVisible(!menuVisible)}
+        >
+          <Text style={styles.profileText}>Perfil</Text>
+        </TouchableOpacity>
 
+        {menuVisible && (
+          <View style={styles.menuBox}>
+            <TouchableOpacity onPress={cerrarSesion}>
+              <Text style={styles.menuOption}>Cerrar sesión</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      <Text style={styles.title}>Bienvenido</Text>
 
       <Text style={styles.subtitulo}>Sus finanzas son:</Text>
 
-      <View style={styles.card}>
+      <View className="card" style={styles.card}>
         <Text style={styles.cardTitle}>Saldo actual:</Text>
-        <Text style={styles.balance}>$0.00</Text>
-      </View>
+        <Text style={styles.balance}>${saldoActual.toFixed(2)}</Text>
 
-      <Button color='grey' title="Ver transacciones" onPress={() => navigation.navigate('Transacciones')} />
-      <Button color='grey' title="Presupuesto" onPress={() => navigation.navigate('Presupuestos')} />
-      <Button color='grey' title="Ver gráficas" onPress={() => navigation.navigate('Graficas')} />
-      <Button color='grey' title="Ver perfil" onPress={() => navigation.navigate('Perfil')} />
+        <View style={styles.saldosRow}>
+          <View style={styles.saldoBox}>
+            <Text style={styles.saldoLabel}>Ingresos</Text>
+            <Text style={styles.saldoValor}>${totalIngresos.toFixed(2)}</Text>
+          </View>
+          <View style={styles.saldoBox}>
+            <Text style={styles.saldoLabel}>Gastos</Text>
+            <Text style={styles.saldoValor}>${totalGastos.toFixed(2)}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
@@ -26,53 +104,105 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    paddingTop: 20,
+    paddingHorizontal: 20,
   },
-  container2: {
-    flexDirection: "row",
-    justifyContent: "space-between", 
-    gap: 20,
-    padding: 20,
-    fontSize: 50,
+
+  header: {
+    position: "absolute",
+    top: 10,
+    right: 20,
   },
+
+  profileButton: {
+    padding: 10,
+    backgroundColor: "#eaeaea",
+    borderRadius: 8,
+  },
+
+  profileText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  menuBox: {
+    marginTop: 8,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    elevation: 2,
+  },
+
+  menuOption: {
+    fontSize: 16,
+    paddingVertical: 5,
+    fontWeight: "500",
+  },
+
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    marginTop: 40,
     marginBottom: 10,
   },
+
   subtitulo: {
     fontSize: 16,
-    color: '#333',
-    marginBottom: 30,
+    color: "#333",
+    marginBottom: 20,
   },
+
   card: {
-    width: '90%',
-    backgroundColor: '#f0f0f0',
+    width: "90%",
+    backgroundColor: "#f0f0f0",
     padding: 20,
     borderRadius: 10,
-    marginBottom: 30,
-    shadowColor: '#000',
+    marginBottom: 20,
+    shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0,height: 2 },
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 4,
   },
+
   cardTitle: {
     fontSize: 19,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
-    textAlign: 'center',
+    textAlign: "center",
   },
+
   balance: {
     fontSize: 22,
-    color: '#009688',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "#009688",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
   },
-  boton: {
-    color: 'grey',
+
+  saldosRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+
+  saldoBox: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  saldoLabel: {
+    fontSize: 13,
+    color: "#555",
+  },
+
+  saldoValor: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
