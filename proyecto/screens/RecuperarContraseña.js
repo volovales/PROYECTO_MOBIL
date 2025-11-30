@@ -1,36 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
-import InicioSesion from "./InicioSesion";
+import {
+  Alert,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import DatabaseService from "../database/DatabaseService";
 
-export default function RecuperarContraseña() {
+export default function RecuperarContraseña({ navigation }) {
   const [email, setEmail] = useState("");
-  const [mostrarInicioSesion, setMostrarInicio] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     DatabaseService.initialize();
   }, []);
 
-  const showAlert = (title, message) => {
+  const showAlert = (title, message, onClose) => {
     if (Platform.OS === "web") {
       window.alert(`${title}\n\n${message}`);
+      if (onClose) onClose();
     } else {
-      Alert.alert(title, message);
+      const buttons = onClose
+        ? [{ text: "OK", onPress: onClose }]
+        : [{ text: "OK" }];
+      Alert.alert(title, message, buttons);
     }
   };
 
   const goInicioSesion = () => {
-    Alert.alert("Inicio Sesión", "Navegando al inicio de sesión.", [
-      {
-        text: "OK",
-        onPress: () => setMostrarInicio(true),
-      },
-    ]);
+    navigation.goBack();
   };
-
-  if (mostrarInicioSesion) {
-    return <InicioSesion />;
-  }
 
   const onRecover = async () => {
     if (!email.trim()) {
@@ -48,7 +54,6 @@ export default function RecuperarContraseña() {
     }
 
     try {
-      await DatabaseService.initialize();
       const user = await DatabaseService.getUserByEmail(email.trim());
 
       if (!user) {
@@ -61,7 +66,10 @@ export default function RecuperarContraseña() {
 
       showAlert(
         "Recuperación",
-        `Hemos localizado tu cuenta, ${user.nombre}. Se han enviado instrucciones de recuperación a ${email}.`
+        `Hemos localizado tu cuenta, ${user.nombre}. Ahora ingresa una nueva contraseña.`,
+        () => {
+          setShowPasswordForm(true);
+        }
       );
     } catch (error) {
       console.log("Error en recuperación:", error);
@@ -72,10 +80,57 @@ export default function RecuperarContraseña() {
     }
   };
 
+  const onChangePassword = async () => {
+    if (!newPassword.trim() || !confirmPassword.trim()) {
+      showAlert(
+        "Campos incompletos",
+        "Ingresa y confirma la nueva contraseña."
+      );
+      return;
+    }
+
+    if (newPassword.trim().length < 6) {
+      showAlert(
+        "Contraseña débil",
+        "La nueva contraseña debe tener al menos 6 caracteres."
+      );
+      return;
+    }
+
+    if (newPassword.trim() !== confirmPassword.trim()) {
+      showAlert(
+        "No coinciden",
+        "La contraseña y la confirmación no coinciden."
+      );
+      return;
+    }
+
+    try {
+      await DatabaseService.updateUserPasswordByEmail(
+        email.trim(),
+        newPassword.trim()
+      );
+
+      showAlert(
+        "Contraseña actualizada",
+        "Tu contraseña ha sido modificada correctamente.",
+        () => {
+          navigation.goBack();
+        }
+      );
+    } catch (error) {
+      console.log("Error actualizando contraseña:", error);
+      showAlert(
+        "Error",
+        "No se pudo actualizar la contraseña. Intenta más tarde."
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={styles.root}>
       <TouchableOpacity style={styles.InicioBtn} onPress={goInicioSesion}>
-        <Text style={styles.ReturnBtnText}> Regresar</Text>
+        <Text style={styles.ReturnBtnText}>Regresar</Text>
       </TouchableOpacity>
 
       <View style={styles.header}>
@@ -99,11 +154,45 @@ export default function RecuperarContraseña() {
           value={email}
           onChangeText={setEmail}
           returnKeyType="done"
+          editable={!showPasswordForm}
         />
 
-        <TouchableOpacity style={styles.primaryBtn} onPress={onRecover}>
-          <Text style={styles.primaryBtnText}>Recuperar</Text>
-        </TouchableOpacity>
+        {!showPasswordForm && (
+          <TouchableOpacity style={styles.primaryBtn} onPress={onRecover}>
+            <Text style={styles.primaryBtnText}>Recuperar</Text>
+          </TouchableOpacity>
+        )}
+
+        {showPasswordForm && (
+          <>
+            <Text style={styles.label}>Nueva contraseña</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nueva contraseña"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+            />
+
+            <Text style={styles.label}>Confirmar contraseña</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Confirmar contraseña"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+
+            <TouchableOpacity
+              style={styles.primaryBtn}
+              onPress={onChangePassword}
+            >
+              <Text style={styles.primaryBtnText}>Actualizar contraseña</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -131,7 +220,8 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   InicioBtn: {
-    textAlign: "left",
+    marginLeft: 16,
+    marginTop: 16,
   },
   title: {
     fontSize: 28,
