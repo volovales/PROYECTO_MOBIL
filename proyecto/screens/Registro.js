@@ -1,22 +1,18 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { Alert, SafeAreaView,ScrollView,StyleSheet,Text, TextInput,TouchableOpacity,} from "react-native";
 import DatabaseService from "../database/DatabaseService";
 
+// Pantalla de registro: administra el formulario y la creación del usuario en la base de datos
 export default function Registro({ navigation }) {
+
+  // Estados que guardan los datos ingresados en el formulario
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
 
+  // Función para validar que los campos tengan formato y contenido correcto
   const validar = () => {
     if (!fullName || !email || !username || !password || !confirmPass) {
       Alert.alert("Campos incompletos", "Llena todos los campos para continuar");
@@ -43,10 +39,12 @@ export default function Registro({ navigation }) {
     return true;
   };
 
+  // Acción para regresar a la pantalla anterior (Inicio de Sesión)
   const goInicioSesion = () => {
     navigation.goBack();
   };
 
+  // Función que crea un nuevo usuario en la base de datos si la validación es correcta
   const onRegister = async () => {
     if (!validar()) return;
 
@@ -78,6 +76,7 @@ export default function Registro({ navigation }) {
     }
   };
 
+  // Renderizado de la interfaz del formulario de registro
   return (
     <SafeAreaView style={styles.root}>
       <TouchableOpacity style={styles.InicioBtn} onPress={goInicioSesion}>
@@ -92,6 +91,7 @@ export default function Registro({ navigation }) {
       >
         <Text style={styles.title}>Registrarse</Text>
 
+        {/* Bloque de inputs del formulario */}
         <Text style={styles.label}>Nombre Completo</Text>
         <TextInput
           style={styles.input}
@@ -142,6 +142,7 @@ export default function Registro({ navigation }) {
           onChangeText={setConfirmPass}
         />
 
+        {/* Botón principal de registro */}
         <TouchableOpacity style={styles.primaryBtn} onPress={onRegister}>
           <Text style={styles.primaryBtnText}>Registrarse</Text>
         </TouchableOpacity>
@@ -150,6 +151,7 @@ export default function Registro({ navigation }) {
   );
 }
 
+// Estilos visuales de la pantalla
 const styles = StyleSheet.create({
   root: {
     flex: 1,
