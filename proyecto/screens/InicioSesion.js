@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import DatabaseService from "../database/DatabaseService";
 
 export default function InicioSesion({ navigation }) {
@@ -153,8 +144,14 @@ export default function InicioSesion({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
-  scroll: { flexGrow: 1, padding: 24 },
+  root: { 
+  flex: 1, 
+  backgroundColor: "#fff" 
+},
+  scroll: { 
+  flexGrow: 1, 
+  padding: 24 
+},
   headerTitle: {
     flex: 1,
     textAlign: "center",
@@ -201,7 +198,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 14,
   },
-  primaryBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  primaryBtnText: { 
+  color: "#fff", 
+  fontWeight: "700", 
+  fontSize: 15 
+},
   separatorContainer: {
     marginVertical: 12,
     alignItems: "center",
@@ -244,6 +245,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
     lineHeight: 18,
   },
-  switchAuth: { textAlign: "center", marginTop: 16, color: "#374151" },
-  link: { textDecorationLine: "underline" },
+  switchAuth: { 
+  textAlign: "center", 
+  marginTop: 16, 
+  color: "#374151" 
+},
+  link: { 
+  textDecorationLine: "underline" 
+},
 });
