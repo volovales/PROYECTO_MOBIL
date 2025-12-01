@@ -1,4 +1,3 @@
-// Screens/HomeScreen.js
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
@@ -6,6 +5,13 @@ import DatabaseService from "../database/DatabaseService";
 import { TransController } from "../controller/TransController";
 
 const transController = new TransController();
+
+function formatMoney(num) {
+  return Number(num).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 export default function HomeScreen({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -33,15 +39,6 @@ export default function HomeScreen({ navigation }) {
 
       setTotalIngresos(ing);
       setTotalGastos(gas);
-
-      console.log(
-        "[HOME] Transacciones cargadas:",
-        lista.length,
-        "Ingresos:",
-        ing,
-        "Gastos:",
-        gas
-      );
     } catch (e) {
       console.log("Error cargando transacciones en Home:", e);
     }
@@ -79,22 +76,29 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <Text style={styles.title}>Bienvenido</Text>
-
       <Text style={styles.subtitulo}>Sus finanzas son:</Text>
 
       <View className="card" style={styles.card}>
         <Text style={styles.cardTitle}>Saldo actual:</Text>
-        <Text style={styles.balance}>${saldoActual.toFixed(2)}</Text>
 
-        <View style={styles.saldosRow}>
-          <View style={styles.saldoBox}>
-            <Text style={styles.saldoLabel}>Ingresos</Text>
-            <Text style={styles.saldoValor}>${totalIngresos.toFixed(2)}</Text>
-          </View>
-          <View style={styles.saldoBox}>
-            <Text style={styles.saldoLabel}>Gastos</Text>
-            <Text style={styles.saldoValor}>${totalGastos.toFixed(2)}</Text>
-          </View>
+        {/* SALDO PRINCIPAL */}
+        <Text style={styles.balance}>${formatMoney(saldoActual)}</Text>
+
+        {/* INGRESOS CENTRADOS */}
+        <View style={styles.saldoVerticalBox}>
+          <Text style={styles.saldoLabel}>Ingresos</Text>
+          <Text style={styles.saldoValor}>
+            ${formatMoney(totalIngresos)}
+          </Text>
+        </View>
+        <View style={{ height: 25 }} />
+
+
+        <View style={styles.saldoVerticalBox}>
+          <Text style={styles.saldoLabel}>Gastos</Text>
+          <Text style={styles.saldoValorGastos}>
+            ${formatMoney(totalGastos)}
+          </Text>
         </View>
       </View>
     </View>
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 20,
+    paddingTop: 130,
     paddingHorizontal: 20,
   },
 
@@ -168,6 +172,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 4,
+    alignItems: "center",
   },
 
   cardTitle: {
@@ -182,27 +187,27 @@ const styles = StyleSheet.create({
     color: "#009688",
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 25,
   },
-
-  saldosRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-
-  saldoBox: {
-    flex: 1,
+  saldoVerticalBox: {
     alignItems: "center",
   },
 
   saldoLabel: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#555",
+    marginBottom: 4,
   },
 
   saldoValor: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "blue",
+  },
+
+  saldoValorGastos: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "red",
   },
 });
