@@ -1,57 +1,82 @@
-import * as React from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import HomeScreen from "./screens/HomeScreen";
-import TransaccionesScreen from "./screens/TransacciScreen";
-import PresupuestoScreen from "./screens/PresupuestoScreen";
-import GraficasScreen from "./screens/GraficasScreen";
-import NotifiScreen from "./screens/NotifiScreen";
+import InicioSesion from "./Screens/InicioSesion";
+import Registro from "./Screens/Registro";
+import RecuperarContraseña from "./Screens/RecuperarContraseña";
+import HomeScreen from "./Screens/HomeScreen";
+import Graficas from "./Screens/Graficas";
+import Transacciones from "./Screens/Transacciones";
+import Presupuestos from "./Screens/PresupuestoScreen";
+import ActividadScreen from "./Screens/Actividad";
 
-import DatabaseService from "./database/DatabaseService";
-
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: true,
+        tabBarShowLabel: false,
+        tabBarIcon: ({ color, size }) => {
+          let iconName = "home";
+
+          if (route.name === "Home") {
+            iconName = "home-outline";
+          } else if (route.name === "Transacciones") {
+            iconName = "add-circle-outline";
+          } else if (route.name === "Presupuestos") {
+            iconName = "cart-outline";
+          } else if (route.name === "Graficas") {
+            iconName = "stats-chart-outline";
+          } else if (route.name === "Actividad") {
+            iconName = "time-outline";
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Transacciones" component={Transacciones} />
+      <Tab.Screen name="Presupuestos" component={Presupuestos} />
+      <Tab.Screen name="Graficas" component={Graficas} />
+      <Tab.Screen name="Actividad" component={ActividadScreen} />
+    </Tab.Navigator>
+  );
+}
+
 export default function App() {
-
-  React.useEffect(() => {
-    DatabaseService.initialize(); // Inicializar BD
-  }, []);
-
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="Home"
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarShowLabel: true,
-          tabBarActiveTintColor: "#009688",
-          tabBarInactiveTintColor: "gray",
-          tabBarStyle: {
-            height: 60,
-            paddingBottom: 5,
-          },
+      <Stack.Navigator initialRouteName="InicioSesion">
+        <Stack.Screen
+          name="InicioSesion"
+          component={InicioSesion}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Registro"
+          component={Registro}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RecuperarContraseña"
+          component={RecuperarContraseña}
+          options={{ headerShown: false }}
+        />
 
-          tabBarIcon: ({ color }) => {
-            let icon;
-
-            if (route.name === "Home") icon = "home";
-            else if (route.name === "Transacciones") icon = "swap-horizontal";
-            else if (route.name === "Presupuesto") icon = "wallet";
-            else if (route.name === "Graficas") icon = "stats-chart";
-            else if (route.name === "Notificaciones") icon = "notifications";
-
-            return <Ionicons name={icon} size={26} color={color} />;
-          },
-        })}
-      >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Transacciones" component={TransaccionesScreen} />
-        <Tab.Screen name="Presupuesto" component={PresupuestoScreen} />
-        <Tab.Screen name="Graficas" component={GraficasScreen} />
-        <Tab.Screen name="Notificaciones" component={NotifiScreen} />
-      </Tab.Navigator>
+        {/* PANTALLA PRINCIPAL CON TABS ABAJO */}
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabs}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
